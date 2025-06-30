@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/himanshusharma/Smart Traffic Detection System/logs/.8cffec387846b3a3a377ad6093a9b6f7c9d78878-audit.json",
+    "files": [
+        {
+            "date": 1751285500007,
+            "name": "/Users/himanshusharma/Smart Traffic Detection System/logs/mcp-puppeteer-2025-06-30.log",
+            "hash": "c971f1560b3895fac7673d1209cec4ebe9a4fcec8324521b6e6e0bf8c5068373"
+        }
+    ],
+    "hashType": "sha256"
+}
