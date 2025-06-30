@@ -44,7 +44,7 @@ Follow these steps to get the project up and running on your local machine.
 ### Prerequisites
 
 *   **Python 3.8+:** [Download Python](https://www.python.org/downloads/)
-*   **Node.js & npm (or Yarn):** [Download Node.js](https://nodejs.org/en/download/)
+*   **Node.js & npm (or Yarn)::** [Download Node.js](https://nodejs.org/en/download/)
 *   **Google Cloud Project & Credentials:**
     1.  Create a Google Cloud Project: [Google Cloud Console](https://console.cloud.google.com/)
     2.  Enable the "Cloud Vision API" within your project.
@@ -53,20 +53,7 @@ Follow these steps to get the project up and running on your local machine.
         *   Create a new service account.
         *   Grant it the `Cloud Vision API User` role.
         *   Create a new JSON key and download it. **Keep this file secure!**
-    4.  Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the **absolute path** of this JSON key file.
-        *   **macOS/Linux:**
-            ```bash
-            export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/key.json"
-            ```
-        *   **Windows (Command Prompt):**
-            ```cmd
-            set GOOGLE_APPLICATION_CREDENTIALS="C:\path\to\your\key.json"
-            ```
-        *   **Windows (PowerShell):**
-            ```powershell
-            $env:GOOGLE_APPLICATION_CREDENTIALS="C:\path\to\your\key.json"
-            ```
-        *   **Important:** This environment variable must be set in the terminal session where you run the backend server.
+    4.  Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the **absolute path** of this JSON key file. This environment variable must be set in the terminal session where you run the backend server.
 
 ### 1. Clone the Repository
 
@@ -80,7 +67,6 @@ cd YOUR_REPOSITORY_NAME # Replace with your actual repository name
 Navigate to the project root directory and install the Python dependencies.
 
 ```bash
-cd "Smart Traffic Management System" # Or just 'cd .' if already in the root
 pip install -r requirements.txt
 ```
 
@@ -99,14 +85,8 @@ You will need two separate terminal windows to run the backend and frontend conc
 
 #### Terminal 1: Start the Backend Server
 
-1.  **Navigate to the project root directory:**
-    ```bash
-    cd "/Users/himanshusharma/Smart Traffic Detection System"
-    ```
-2.  **Set your Google Cloud credentials environment variable:**
-    ```bash
-    export GOOGLE_APPLICATION_CREDENTIALS="/Users/himanshusharma/Downloads/traffic-sign-detector-464307-3b5a9d77fd57.json" # Use your actual path
-    ```
+1.  **Navigate to the project root directory.**
+2.  **Set your Google Cloud credentials environment variable.**
 3.  **Start the FastAPI backend server:**
     ```bash
     python3 run.py
@@ -116,10 +96,7 @@ You will need two separate terminal windows to run the backend and frontend conc
 #### Terminal 2: Start the Frontend Development Server
 
 1.  **Open a new terminal window.**
-2.  **Navigate to the `frontend` directory:**
-    ```bash
-    cd "/Users/himanshusharma/Smart Traffic Management System/frontend"
-    ```
+2.  **Navigate to the `frontend` directory.**
 3.  **Start the React development server:**
     ```bash
     npm start
@@ -146,8 +123,28 @@ You will need two separate terminal windows to run the backend and frontend conc
 
 ## License
 
-[MIT License](LICENSE) - *You may want to create a `LICENSE` file in your repository.*
+MIT License
+
+Copyright (c) 2025 Himanshu Sharma
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## Contact
 
-[Your Name/Email/GitHub Profile]
+Himanshu Sharma
