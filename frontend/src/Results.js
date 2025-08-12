@@ -1,154 +1,92 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Card, ListGroup, Alert, ProgressBar, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import React, { useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, ListGroup, Alert } from 'react-bootstrap';
+import './Results.css';
 
 const Results = () => {
-    const [imageSrc, setImageSrc] = useState(null);
-    const [detections, setDetections] = useState([]);
-    const canvasRef = useRef(null);
+    const { state } = useLocation();
     const navigate = useNavigate();
+    const canvasRef = useRef(null);
 
-    // Map common object names to emojis for visual flair
-    const emojiMap = {
-        'Traffic sign': '🛑',
-        'Stop sign': '⛔',
-        'Speed limit sign': '🔢',
-        'Yield sign': '⚠️',
-        'Street sign': '🛣️',
-        'Car': '🚗',
-        'Truck': '🚚',
-        'Bus': '🚌',
-        'Motorcycle': '🏍️',
-        'Bicycle': '🚲',
-        'Person': '🚶',
-        'Traffic light': '🚦',
-        'Road sign': 'igns',
-        // Add more mappings as needed for common detections
-    };
-
-    const getEmoji = (label) => {
-        // Try exact match first
-        if (emojiMap[label]) {
-            return emojiMap[label];
-        }
-        // Try partial match for more generic terms like 'sign'
-        for (const key in emojiMap) {
-            if (label.toLowerCase().includes(key.toLowerCase())) {
-                return emojiMap[key];
-            }
-        }
-        return '✨'; // Default emoji if no specific match
-    };
-
-    const drawDetectionsOnCanvas = (image, detectionsData) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-
-        const img = new Image();
-        img.onload = () => {
-            // Set canvas dimensions to match image
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            ctx.drawImage(img, 0, 0);
-
-            detectionsData.forEach(detection => {
-                const [x_min, y_min, x_max, y_max] = detection.box;
-                const label = detection.label;
-                const confidence = detection.confidence;
-
-                // Draw rectangle
-                ctx.beginPath();
-                ctx.rect(x_min, y_min, x_max - x_min, y_max - y_min);
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = '#2ecc71'; // Accent green
-                ctx.stroke();
-
-                // Draw label background
-                ctx.fillStyle = '#2ecc71'; // Accent green
-                const fontSize = 24;
-                ctx.font = `${fontSize}px Arial`;
-                const textWidth = ctx.measureText(`${label} ${(confidence * 100).toFixed(1)}%`).width;
-                ctx.fillRect(x_min, y_min - fontSize - 8, textWidth + 10, fontSize + 8);
-
-                // Draw label text
-                ctx.fillStyle = 'white';
-                ctx.fillText(`${label} ${(confidence * 100).toFixed(1)}%`, x_min + 5, y_min - 5);
-            });
-        };
-        img.src = image;
-    };
-
+    // Effect to handle missing state and redirect
     useEffect(() => {
-        const storedImage = localStorage.getItem('lastDetectedImage');
-        const storedDetections = localStorage.getItem('lastDetectedDetections');
-
-        if (storedImage && storedDetections) {
-            setImageSrc(storedImage);
-            const parsedDetections = JSON.parse(storedDetections);
-            setDetections(parsedDetections);
-            // Draw on canvas once image and detections are set
-            drawDetectionsOnCanvas(storedImage, parsedDetections);
-        } else {
-            // If no data, redirect back to detection page
+        if (!state || !state.image || !state.detections) {
+            console.log("No detection data found in state, redirecting.");
             navigate('/detect');
         }
-    }, [navigate]);
+    }, [state, navigate]);
 
-    // Redraw on canvas if imageSrc or detections change (e.g., if component re-renders)
+    // Effect to draw detections on the canvas
     useEffect(() => {
-        if (imageSrc && detections.length > 0) {
-            drawDetectionsOnCanvas(imageSrc, detections);
-        }
-    }, [imageSrc, detections]);
+        if (state && state.image && state.detections && canvasRef.current) {
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
 
-    if (!imageSrc) {
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // Draw each detection
+                state.detections.forEach(det => {
+                    const [x_min, y_min, x_max, y_max] = det.box;
+                    ctx.strokeStyle = 'rgba(0, 123, 255, 0.9)'; // --primary with opacity
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x_min, y_min, x_max - x_min, y_max - y_min);
+
+                    const label = `${det.label} (${(det.confidence * 100).toFixed(0)}%)`;
+                    ctx.fillStyle = 'rgba(0, 123, 255, 0.9)';
+                    ctx.font = '16px Inter, sans-serif';
+                    const textWidth = ctx.measureText(label).width;
+                    ctx.fillRect(x_min, y_min - 25, textWidth + 10, 25);
+
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillText(label, x_min + 5, y_min - 5);
+                });
+            };
+            img.src = state.image;
+        }
+    }, [state]);
+
+    // If state is not yet available, render nothing or a loader
+    if (!state || !state.image || !state.detections) {
         return null; // Or a loading spinner
     }
 
     return (
         <Container className="my-5">
-            <h1 className="text-center mb-4">Detection Results 📊</h1>
-            <Row className="justify-content-center">
-                <Col md={10} lg={8}>
-                    <Card className="shadow-lg">
-                        <Card.Body>
-                            <h2 className="text-center mb-3">Captured Image</h2>
-                            <div className="canvas-container mb-3">
-                                <canvas ref={canvasRef} className="w-100 rounded" style={{ border: '2px solid #1a2a6c' }}></canvas>
-                            </div>
-                            <h3 className="mb-3">Detected Objects:</h3>
-                            {detections.length > 0 ? (
-                                <ListGroup variant="flush">
-                                    <TransitionGroup component={null}>
-                                        {detections.map((detection, index) => (
-                                            <CSSTransition key={index} timeout={500} classNames="detected-item">
-                                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <span style={{ fontSize: '1.8rem', marginRight: '15px' }}>{getEmoji(detection.label)}</span>
-                                                        <strong>{detection.label}</strong>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <ProgressBar now={(detection.confidence * 100).toFixed(0)} label={`${(detection.confidence * 100).toFixed(0)}%`} className="me-2" style={{ width: '100px' }} />
-                                                        <span className="badge bg-primary rounded-pill">{(detection.confidence * 100).toFixed(2)}%</span>
-                                                    </div>
-                                                </ListGroup.Item>
-                                            </CSSTransition>
-                                        ))}
-                                    </TransitionGroup>
-                                </ListGroup>
-                            ) : (
-                                <Alert variant="info">No significant objects detected in the image.</Alert>
-                            )}
-                            <div className="text-center mt-4">
-                                <Button variant="secondary" onClick={() => navigate('/detect')} className="ripple-button">
-                                    Detect Another Image
-                                </Button>
-                            </div>
-                        </Card.Body>
-                    </Card>
+            <div className="text-center mb-5">
+                <h1>Detection Results</h1>
+                <p className="lead text-muted">Review the objects identified in your image.</p>
+            </div>
+
+            <Row className="g-5">
+                <Col lg={7}>
+                    <h3 className="mb-3">Processed Image</h3>
+                    <canvas ref={canvasRef} className="results-canvas" />
+                </Col>
+                <Col lg={5}>
+                    <h3 className="mb-3">Detected Objects</h3>
+                    {state.detections.length > 0 ? (
+                        <ListGroup>
+                            {state.detections.map((detection, index) => (
+                                <ListGroup.Item key={index} className="results-list-item">
+                                    <span className="detection-label">{detection.label}</span>
+                                    <span className="detection-confidence">
+                                        {(detection.confidence * 100).toFixed(0)}%
+                                    </span>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    ) : (
+                        <Alert variant="info">No objects were detected in the image.</Alert>
+                    )}
+                    <div className="d-grid mt-4">
+                        <Button variant="primary" size="lg" onClick={() => navigate('/detect')}>
+                            Analyze Another Image
+                        </Button>
+                    </div>
                 </Col>
             </Row>
         </Container>

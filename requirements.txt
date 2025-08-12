@@ -3,3 +3,7 @@ uvicorn
 numpy
 opencv-python
 google-cloud-vision
+pytest
+pytest-mock
+httpx
+python-multipart

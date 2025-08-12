@@ -1,0 +1,39 @@
+/* Results.css */
+
+.results-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--background-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease;
+}
+
+.results-list-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.results-list-item:hover {
+  background-color: #e9ecef; /* Slightly darker alt background */
+  cursor: default; /* Change cursor to indicate it's not clickable */
+}
+
+.detection-label {
+  font-weight: 600;
+}
+
+.detection-confidence {
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.results-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}

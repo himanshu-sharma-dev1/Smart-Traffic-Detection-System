@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # This tells the Google Cloud library where to find the credentials file inside the container.
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      # This mounts your local credentials file into the container.
+      # IMPORTANT: You must have a file named 'credentials.json' in the project root.
+      - ./credentials.json:/app/credentials.json:ro
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # This passes the backend URL to the React build process.
+        REACT_APP_API_BASE_URL: http://backend:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

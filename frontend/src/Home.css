@@ -1,0 +1,13 @@
+/* Home.css */
+
+.feature-card {
+  border: none;
+  background-color: var(--background-alt);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  display: inline-block;
+}
