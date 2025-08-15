@@ -6,83 +6,95 @@ import io
 
 client = TestClient(app)
 
+# Mock Celery's AsyncResult for testing task endpoints
+class MockAsyncResult:
+    def __init__(self, task_id, status='PENDING', result=None):
+        self.id = task_id
+        self.status = status
+        self._result = result
+
+    def ready(self):
+        return self.status in ['SUCCESS', 'FAILURE']
+
+    def failed(self):
+        return self.status == 'FAILURE'
+
+    def get(self):
+        return self._result
+
 def test_ping():
     response = client.get("/ping")
     assert response.status_code == 200
     assert response.json() == {"message": "pong"}
 
-def test_detect_image_success(mocker):
-    # Mock the Google Cloud Vision client
-    mock_vision_client = MagicMock()
+def test_detect_image_dispatches_task(mocker):
+    # Mock the delay method of our celery task
+    mock_task = MagicMock()
+    mock_task.id = "test-task-id"
+    mocker.patch('celery_worker.process_image_task.delay', return_value=mock_task)
 
-    # Mock the response from object_localization
-    mock_localized_object = MagicMock()
-    mock_localized_object.name = "Stop sign"
-    mock_localized_object.score = 0.95
-
-    # Mock the bounding poly and normalized vertices
-    # Create mock vertices with x and y attributes
-    v1 = MagicMock()
-    v1.x, v1.y = 0.1, 0.1
-    v2 = MagicMock()
-    v2.x, v2.y = 0.2, 0.1
-    v3 = MagicMock()
-    v3.x, v3.y = 0.2, 0.2
-    v4 = MagicMock()
-    v4.x, v4.y = 0.1, 0.2
-
-    mock_bounding_poly = PropertyMock()
-    mock_bounding_poly.normalized_vertices = [v1, v2, v3, v4]
-    type(mock_localized_object).bounding_poly = mock_bounding_poly
-
-    mock_response = MagicMock()
-    mock_response.localized_object_annotations = [mock_localized_object]
-
-    mock_vision_client.object_localization.return_value = mock_response
-
-    mocker.patch('run.vision_client', mock_vision_client)
-
-    # Create a dummy image file (a tiny 1x1 black GIF)
-    dummy_image_bytes = (
-        b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00'
-        b'\x00\x00\x00\xff\xff\xff\x21\xf9\x04\x01\x00\x00\x00\x00'
-        b'\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
-    )
+    # Create a dummy image file
+    dummy_image_bytes = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
     dummy_file = io.BytesIO(dummy_image_bytes)
 
-    # Make the request
     response = client.post(
         "/detect",
         files={"file": ("test.jpg", dummy_file, "image/jpeg")}
     )
 
     # Assertions
-    assert response.status_code == 200
+    assert response.status_code == 202 # 202 Accepted
     data = response.json()
+    assert data["task_id"] == "test-task-id"
     assert "image" in data
-    assert "detections" in data
 
-    detections = data["detections"]
-    assert len(detections) == 1
-    detection = detections[0]
-    assert detection["label"] == "Stop sign"
-    assert detection["confidence"] == 0.95
-    # Note: The box coordinates depend on the mocked image shape,
-    # which is not easily controlled here without more extensive mocking of cv2.
-    # For this test, we focus on the label and confidence.
-    assert "box" in detection
+    # Ensure the task was called
+    from celery_worker import process_image_task
+    process_image_task.delay.assert_called_once()
 
-def test_detect_image_no_vision_client(mocker):
-    # Mock the vision_client to be None
-    mocker.patch('run.vision_client', None)
+def test_get_task_status(mocker):
+    task_id = "test-task-id"
 
-    dummy_image_bytes = b"dummy image content"
-    dummy_file = io.BytesIO(dummy_image_bytes)
+    # Mock the AsyncResult
+    mock_async_result = MockAsyncResult(task_id, status='SUCCESS')
+    mocker.patch('run.AsyncResult', return_value=mock_async_result)
 
-    response = client.post(
-        "/detect",
-        files={"file": ("test.jpg", dummy_file, "image/jpeg")}
-    )
+    response = client.get(f"/tasks/{task_id}/status")
 
-    assert response.status_code == 500
-    assert response.json() == {"detail": "Google Cloud Vision client not initialized. Check server logs."}
+    assert response.status_code == 200
+    assert response.json() == {"status": "SUCCESS"}
+
+def test_get_task_result_success(mocker):
+    task_id = "test-task-id"
+    expected_result = {"detections": [{"label": "Stop Sign", "confidence": 0.95, "box": [1,2,3,4]}]}
+
+    # Mock the AsyncResult
+    mock_async_result = MockAsyncResult(task_id, status='SUCCESS', result=expected_result)
+    mocker.patch('run.AsyncResult', return_value=mock_async_result)
+
+    response = client.get(f"/tasks/{task_id}/result")
+
+    assert response.status_code == 200
+    assert response.json() == {"detections": expected_result["detections"]}
+
+def test_get_task_result_pending(mocker):
+    task_id = "test-task-id"
+
+    # Mock the AsyncResult
+    mock_async_result = MockAsyncResult(task_id, status='PENDING')
+    mocker.patch('run.AsyncResult', return_value=mock_async_result)
+
+    response = client.get(f"/tasks/{task_id}/result")
+
+    assert response.status_code == 404 # Not Found, because it's not ready
+
+def test_get_task_result_failed(mocker):
+    task_id = "test-task-id"
+
+    # Mock the AsyncResult
+    mock_async_result = MockAsyncResult(task_id, status='FAILURE')
+    mocker.patch('run.AsyncResult', return_value=mock_async_result)
+
+    response = client.get(f"/tasks/{task_id}/result")
+
+    assert response.status_code == 500 # Internal Server Error

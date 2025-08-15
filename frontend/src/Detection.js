@@ -56,8 +56,11 @@ const Detection = () => {
             const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
             const response = await axios.post(`${API_BASE_URL}/detect`, formData);
 
-            navigate('/results', { state: { image: `data:image/jpeg;base64,${response.data.image}`, detections: response.data.detections } });
-            toast.success("Detection successful!");
+            const { task_id, image } = response.data;
+
+            // Navigate to the processing page to start polling
+            navigate('/processing', { state: { task_id, image: `data:image/jpeg;base64,${image}` } });
+            toast.info("Your image is being processed!");
         } catch (err) {
             setError("An error occurred during detection. The backend server might be down.");
             toast.error("Detection failed.");

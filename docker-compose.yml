@@ -1,6 +1,11 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:alpine
+    networks:
+      - app-network
+
   backend:
     build:
       context: .
@@ -8,21 +13,51 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # This tells the Google Cloud library where to find the credentials file inside the container.
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
-      # This mounts your local credentials file into the container.
-      # IMPORTANT: You must have a file named 'credentials.json' in the project root.
       - ./credentials.json:/app/credentials.json:ro
     networks:
       - app-network
+    depends_on:
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A celery_worker.worker worker --loglevel=info
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./credentials.json:/app/credentials.json:ro
+    networks:
+      - app-network
+    depends_on:
+      - backend
+      - redis
+
+  flower:
+    image: mher/flower
+    command: flower --broker=${CELERY_BROKER_URL}
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    networks:
+      - app-network
+    depends_on:
+      - redis
+      - worker
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # This passes the backend URL to the React build process.
         REACT_APP_API_BASE_URL: http://backend:8000
     ports:
       - "3000:80"

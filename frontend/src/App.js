@@ -12,6 +12,7 @@ import About from './About';
 import Features from './Features';
 import Contact from './Contact';
 import Results from './Results';
+import Processing from './Processing';
 import './App.css';
 
 function App() {
@@ -90,6 +91,7 @@ function AnimatedRoutes() {
                         <Route path="/detect" element={<Detection />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/contact" element={<Contact />} />
+                        <Route path="/processing" element={<Processing />} />
                         <Route path="/results" element={<Results />} />
                     </Routes>
                 </div>

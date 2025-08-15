@@ -7,3 +7,6 @@ pytest
 pytest-mock
 httpx
 python-multipart
+celery
+redis
+flower

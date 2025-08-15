@@ -1,81 +1,64 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-import numpy as np
-import cv2
+from celery.result import AsyncResult
+from celery_worker import process_image_task
 import base64
-import io
-import os
-from google.cloud import vision
 
 app = FastAPI()
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
-# Initialize Google Cloud Vision client
-# Ensure GOOGLE_APPLICATION_CREDENTIALS environment variable is set
-try:
-    vision_client = vision.ImageAnnotatorClient()
-except Exception as e:
-    print(f"Error initializing Google Cloud Vision client: {e}")
-    print("Please ensure GOOGLE_APPLICATION_CREDENTIALS environment variable is set correctly.")
-    vision_client = None # Set to None to handle errors gracefully
 
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
 
-@app.post("/detect")
+@app.post("/detect", status_code=status.HTTP_202_ACCEPTED)
 async def detect_image(file: UploadFile = File(...)):
-    if vision_client is None:
-        raise HTTPException(status_code=500, detail="Google Cloud Vision client not initialized. Check server logs.")
-
+    """
+    Receives an image, dispatches it to a Celery worker for processing,
+    and returns a task ID for polling.
+    """
     contents = await file.read()
-    nparr = np.frombuffer(contents, np.uint8)
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    if frame is None:
-        raise HTTPException(status_code=400, detail="Could not decode image.")
+    # Dispatch the task to the Celery worker
+    task = process_image_task.delay(contents)
 
-    # Prepare image for Google Cloud Vision API
-    image = vision.Image(content=contents)
-
-    try:
-        # Perform object localization (general object detection)
-        response = vision_client.object_localization(image=image)
-        localized_objects = response.localized_object_annotations
-
-        detected_signs = []
-        for obj in localized_objects:
-            label = obj.name
-            confidence = obj.score
-            
-            # Google Cloud Vision API returns normalized vertices (0 to 1)
-            # Convert them to pixel coordinates
-            h, w, _ = frame.shape
-            box = [
-                int(obj.bounding_poly.normalized_vertices[0].x * w), # x_min
-                int(obj.bounding_poly.normalized_vertices[0].y * h), # y_min
-                int(obj.bounding_poly.normalized_vertices[2].x * w), # x_max
-                int(obj.bounding_poly.normalized_vertices[2].y * h)  # y_max
-            ]
-            
-            detected_signs.append({"label": label, "confidence": float(confidence), "box": box})
-
-    except Exception as e:
-        print(f"Error calling Google Cloud Vision API: {e}")
-        raise HTTPException(status_code=500, detail=f"Error processing image with Vision API: {e}")
-
-    # Encode original image contents to base64
+    # Also include the original image for immediate display on the results page
     encoded_image = base64.b64encode(contents).decode('utf-8')
 
-    return {"image": encoded_image, "detections": detected_signs}
+    return {"task_id": task.id, "image": encoded_image}
+
+
+@app.get("/tasks/{task_id}/status")
+async def get_task_status(task_id: str):
+    """
+    Checks the status of a Celery task.
+    """
+    task_result = AsyncResult(task_id)
+    return {"status": task_result.status}
+
+
+@app.get("/tasks/{task_id}/result")
+async def get_task_result(task_id: str):
+    """
+    Retrieves the result of a completed Celery task.
+    """
+    task_result = AsyncResult(task_id)
+    if not task_result.ready():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not ready or not found.")
+
+    if task_result.failed():
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Task failed.")
+
+    result = task_result.get()
+    return {"detections": result.get("detections", [])}
 
 if __name__ == "__main__":
     import uvicorn
