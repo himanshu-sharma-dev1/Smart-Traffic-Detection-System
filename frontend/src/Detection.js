@@ -54,21 +54,34 @@ const Detection = () => {
         }
     };
 
+    const blobToDataURL = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
+
     const processImage = async (imageBlob) => {
         setLoading(true);
         setError(null);
-        const formData = new FormData();
-        formData.append('file', imageBlob, 'image.jpg');
 
         try {
+            // Convert blob to data URL and store it first
+            const imageUrl = await blobToDataURL(imageBlob);
+            localStorage.setItem('lastDetectedImage', imageUrl);
+
+            const formData = new FormData();
+            formData.append('file', imageBlob, 'image.jpg');
+
             const response = await axios.post('http://localhost:8000/detect', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            // Store data in localStorage before redirecting
-            localStorage.setItem('lastDetectedImage', `data:image/jpeg;base64,${response.data.image}`);
+            // Detections from API, image is already in local storage
             localStorage.setItem('lastDetectedDetections', JSON.stringify(response.data.detections));
 
             toast.success("Image processed successfully!");

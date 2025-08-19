@@ -64,9 +64,10 @@ cd YOUR_REPOSITORY_NAME # Replace with your actual repository name
 
 ### 2. Backend Setup
 
-Navigate to the project root directory and install the Python dependencies.
+Navigate to the `backend` directory and install the Python dependencies.
 
 ```bash
+cd backend
 pip install -r requirements.txt
 ```
 
@@ -85,11 +86,11 @@ You will need two separate terminal windows to run the backend and frontend conc
 
 #### Terminal 1: Start the Backend Server
 
-1.  **Navigate to the project root directory.**
+1.  **Navigate to the `backend` directory.**
 2.  **Set your Google Cloud credentials environment variable.**
 3.  **Start the FastAPI backend server:**
     ```bash
-    python3 run.py
+    python3 main.py
     ```
     *The backend server will typically run on `http://0.0.0.0:8000`.*
 
