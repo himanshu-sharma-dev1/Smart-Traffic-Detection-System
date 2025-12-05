@@ -1,5 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
 numpy
 opencv-python
 google-cloud-vision
+python-multipart
+websockets
+sqlalchemy
+ultralytics

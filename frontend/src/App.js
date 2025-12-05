@@ -7,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Detection from './Detection';
+import RealTimeDetection from './RealTimeDetection';
+import Dashboard from './Dashboard';
 import Home from './Home';
 import About from './About';
 import Features from './Features';
@@ -40,6 +42,8 @@ function App() {
                             <Nav.Link as={Link} to="/">Home</Nav.Link>
                             <Nav.Link as={Link} to="/features">Features</Nav.Link>
                             <Nav.Link as={Link} to="/detect">Detection</Nav.Link>
+                            <Nav.Link as={Link} to="/realtime">Real-Time Stream</Nav.Link>
+                            <Nav.Link as={Link} to="/dashboard">Analytics</Nav.Link>
                             <Nav.Link as={Link} to="/about">About Us</Nav.Link>
                             <Nav.Link as={Link} to="/contact">Contact</Nav.Link>
                         </Nav>
@@ -88,6 +92,8 @@ function AnimatedRoutes() {
                         <Route path="/" element={<Home />} />
                         <Route path="/features" element={<Features />} />
                         <Route path="/detect" element={<Detection />} />
+                        <Route path="/realtime" element={<RealTimeDetection />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/results" element={<Results />} />
