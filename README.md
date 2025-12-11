@@ -1,150 +1,332 @@
-# Smart Traffic Detection System 🚦
+<p align="center">
+  <h1 align="center">🚦 Smart Traffic Detection System</h1>
+  <p align="center">
+    <strong>AI-powered real-time traffic detection with custom YOLOv8 Indian traffic sign recognition</strong>
+  </p>
+  <p align="center">
+    <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
+    <img src="https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+    <img src="https://img.shields.io/badge/TensorFlow.js-COCO_SSD-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow.js" />
+    <img src="https://img.shields.io/badge/YOLOv8-Custom-purple?style=for-the-badge&logo=yolo&logoColor=white" alt="YOLOv8" />
+    <img src="https://img.shields.io/badge/Gemini_2.5-Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+    <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
+  </p>
+</p>
 
-## Project Overview
+---
 
-The Smart Traffic Detection System is an innovative web application designed to enhance road safety and traffic efficiency through AI-powered traffic sign recognition. Leveraging Google Cloud Vision AI, the system accurately identifies various traffic signs from live webcam feeds or uploaded images, presenting the results in a visually appealing and interactive user interface.
+<p align="center">
+  <i>"Fine-tuned YOLOv8 achieving 91.5% mAP50 on Indian traffic signs, deployed for real-time browser inference at 16+ FPS"</i>
+</p>
 
-This project demonstrates a modern full-stack architecture, combining a FastAPI backend for AI integration and a React frontend for a rich user experience.
+---
 
-## Key Features
+## ✨ Key Features
 
-✨ **AI-Powered Traffic Sign Detection:** Utilizes Google Cloud Vision AI for highly accurate and broad traffic sign recognition.
-📸 **Webcam & Image Upload:** Supports real-time detection from your webcam or allows users to upload images from their device.
-🖼️ **Dynamic Bounding Boxes:** Bounding boxes and labels are drawn dynamically on the frontend using HTML Canvas, providing a flexible and interactive display of detection results.
-🚀 **Interactive & Visually Appealing UI:**
-    *   **Multi-Page Navigation:** A sleek, multi-page React frontend with dedicated sections for Home, Features, Detection, About Us, and Contact.
-    *   **Animated Transitions:** Smooth, "slides-like" page transitions with subtle background color changes for a premium feel.
-    *   **Dynamic Background:** A subtle, animated gradient background across the application.
-    *   **Hero Section Animations:** Engaging text and button animations on the homepage.
-    *   **Interactive Elements:** Custom loading states, button ripple effects, and animated detection results with confidence visualizers.
-    *   **High-Quality Imagery:** Designed to showcase high-quality landscape, electric vehicle, and traffic sign images (user-provided).
-📊 **Dedicated Results Page:** Automatically redirects to a separate page to display detailed detection results after processing.
+### 🎯 Detection Capabilities
+| Feature | Technology | Status |
+|---------|------------|--------|
+| **Real-time Detection** | COCO-SSD (TensorFlow.js) | ✅ Working |
+| **Traffic Sign Detection** | Custom YOLOv8 (85 classes) | ✅ Working |
+| **Image Detection** | Gemini 2.5 Flash Vision API | ✅ Working |
+| **Video File Detection** | Frame-by-frame processing | ✅ Implemented |
+| **Object Tracking** | SORT algorithm | ✅ Working |
+| **Speed Estimation** | Physics-based calculation | ✅ Implemented |
+| **Counting Zones** | Line-crossing detection | ✅ Implemented |
+| **License Plate OCR** | Tesseract.js | ✅ Implemented |
 
-## Technologies Used
+### 🛡️ Production Features
+| Feature | Technology | Status |
+|---------|------------|--------|
+| **JWT Authentication** | bcrypt + python-jose | ✅ Working |
+| **Google OAuth** | Authlib + Google Cloud | ✅ Working |
+| **Email Verification** | SMTP + tokens | ✅ Working |
+| **Password Reset** | Email-based reset flow | ✅ Working |
+| **Rate Limiting** | slowapi (20/min) | ✅ Working |
+| **PWA Support** | Service Workers | ✅ Working |
 
-### Backend (Python FastAPI)
-*   **FastAPI:** A modern, fast (high-performance) web framework for building APIs with Python 3.7+.
-*   **Google Cloud Vision AI:** Cloud-based machine learning service for image analysis.
-*   **Uvicorn:** An ASGI server for running FastAPI applications.
-*   **NumPy & OpenCV (`cv2`):** For image processing tasks (decoding, encoding).
+### 🎨 User Experience
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **Voice Commands** | Web Speech API | ✅ Implemented |
+| **Keyboard Shortcuts** | Alt+H, Alt+D, Alt+L, etc. | ✅ Working |
+| **Dark Mode** | Persisted preference | ✅ Working |
+| **PDF Export** | Detection reports | ✅ Working |
+| **Analytics Dashboard** | Recharts visualization | ✅ Working |
 
-### Frontend (React)
-*   **React.js:** A JavaScript library for building user interfaces.
-*   **React Bootstrap:** The most popular frontend framework rebuilt for React.
-*   **React Router DOM:** For declarative routing in React applications.
-*   **React Transition Group:** For managing component transition states.
-*   **Axios:** Promise-based HTTP client for the browser and Node.js.
-*   **React Toastify:** For easy and customizable toast notifications.
-*   **HTML Canvas API:** For dynamic drawing of bounding boxes.
+---
 
-## Setup and Installation
+## 🤖 Custom AI Model Stats
 
-Follow these steps to get the project up and running on your local machine.
+<table align="center">
+<tr><th>Metric</th><th>Value</th><th>Notes</th></tr>
+<tr><td><strong>mAP50</strong></td><td>91.5%</td><td>Excellent accuracy</td></tr>
+<tr><td><strong>mAP50-95</strong></td><td>85.1%</td><td>Precise bounding boxes</td></tr>
+<tr><td><strong>Recall</strong></td><td>92.7%</td><td>Rarely misses signs</td></tr>
+<tr><td><strong>Precision</strong></td><td>82.2%</td><td>Low false positives</td></tr>
+<tr><td><strong>Classes</strong></td><td>85</td><td>Indian traffic signs</td></tr>
+<tr><td><strong>Model Size</strong></td><td>~12MB</td><td>Browser optimized</td></tr>
+<tr><td><strong>FPS</strong></td><td>16+</td><td>Dual-model inference</td></tr>
+</table>
+
+### Traffic Sign Categories
+```
+STOP, SPEED_LIMIT_15-80, NO_ENTRY, NO_PARKING, GIVE_WAY, PEDESTRIAN_CROSSING,
+SCHOOL_AHEAD, CATTLE, T_INTERSECTION, ROUNDABOUT, U_TURN_PROHIBITED, 
+COMPULSARY_TURN_LEFT/RIGHT, NARROW_BRIDGE, STEEP_DESCENT, MEN_AT_WORK,
+TRUCK_PROHIBITED, HORN_PROHIBITED, and 65+ more classes...
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Frontend (React 19)                           │
+│   ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────────┐   │
+│   │   Home    │  │  Detect   │  │   Live    │  │   Dashboard   │   │
+│   └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └───────┬───────┘   │
+│         │              │              │                │             │
+│   ┌─────┴──────────────┴──────────────┴────────────────┴─────┐     │
+│   │              Dual-Model Detection Engine                  │     │
+│   │  ┌──────────────┐    ┌──────────────────────────────┐    │     │
+│   │  │   COCO-SSD   │ +  │  YOLOv8 Traffic Signs (85)   │    │     │
+│   │  │  (Vehicles)  │    │   Frame Interlacing + NMS    │    │     │
+│   │  └──────────────┘    └──────────────────────────────┘    │     │
+│   └──────────────────────────┬───────────────────────────────┘     │
+└──────────────────────────────┼──────────────────────────────────────┘
+                               │ REST API
+┌──────────────────────────────┼──────────────────────────────────────┐
+│                        Backend (FastAPI)                             │
+│   ┌──────────────────────────┴────────────────────────────┐        │
+│   │   /api/auth/*   │   /api/detections/*   │   /detect   │        │
+│   │   JWT + OAuth   │   CRUD + Stats        │   Gemini    │        │
+│   └──────────────────────────┬────────────────────────────┘        │
+└──────────────────────────────┼──────────────────────────────────────┘
+                               │
+                  ┌────────────┴────────────┐
+                  │      MongoDB Atlas       │
+                  │  (Users + Detections)    │
+                  └─────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
+- Node.js 18+ | Python 3.9+ | MongoDB Atlas account
 
-*   **Python 3.8+:** [Download Python](https://www.python.org/downloads/)
-*   **Node.js & npm (or Yarn)::** [Download Node.js](https://nodejs.org/en/download/)
-*   **Google Cloud Project & Credentials:**
-    1.  Create a Google Cloud Project: [Google Cloud Console](https://console.cloud.google.com/)
-    2.  Enable the "Cloud Vision API" within your project.
-    3.  Create a Service Account Key:
-        *   Go to `IAM & Admin` > `Service Accounts`.
-        *   Create a new service account.
-        *   Grant it the `Cloud Vision API User` role.
-        *   Create a new JSON key and download it. **Keep this file secure!**
-    4.  Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the **absolute path** of this JSON key file. This environment variable must be set in the terminal session where you run the backend server.
-
-### 1. Clone the Repository
-
+### 1. Clone & Install
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git
-cd YOUR_REPOSITORY_NAME # Replace with your actual repository name
+git clone https://github.com/himanshu-sharma-dev1/Smart-Traffic-Detection-System.git
+cd Smart-Traffic-Detection-System
+
+# Backend
+cd backend && pip install -r requirements.txt
+
+# Frontend
+cd ../frontend && npm install
 ```
 
-### 2. Backend Setup
+### 2. Configure Environment
 
-Navigate to the project root directory and install the Python dependencies.
-
+**Backend (.env)**
 ```bash
-pip install -r requirements.txt
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/traffic_detection
+JWT_SECRET=your-secret-key
+GEMINI_API_KEY=your-gemini-api-key
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
+
+# Email (optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
 ```
 
-### 3. Frontend Setup
-
-Navigate into the `frontend` directory and install the Node.js dependencies.
-
+**Frontend (.env)**
 ```bash
-cd frontend
-npm install
+REACT_APP_API_URL=http://localhost:8000
 ```
 
-### 4. Running the Application
+### 3. Run
+```bash
+# Terminal 1 - Backend
+cd backend && python3 main.py
 
-You will need two separate terminal windows to run the backend and frontend concurrently.
+# Terminal 2 - Frontend
+cd frontend && npm start
+```
 
-#### Terminal 1: Start the Backend Server
+### 4. Open
+Navigate to `http://localhost:3000` 🎉
 
-1.  **Navigate to the project root directory.**
-2.  **Set your Google Cloud credentials environment variable.**
-3.  **Start the FastAPI backend server:**
-    ```bash
-    python3 run.py
-    ```
-    *The backend server will typically run on `http://0.0.0.0:8000`.*
+---
 
-#### Terminal 2: Start the Frontend Development Server
+## 📁 Project Structure
 
-1.  **Open a new terminal window.**
-2.  **Navigate to the `frontend` directory.**
-3.  **Start the React development server:**
-    ```bash
-    npm start
-    ```
-    *The frontend application will typically open in your browser at `http://localhost:3000`.*
+```
+Smart Traffic Detection System/
+├── 📂 backend/
+│   ├── main.py              # FastAPI + Gemini 2.5 Vision
+│   ├── config/              # Database & settings
+│   ├── models/              # Pydantic schemas
+│   ├── routes/
+│   │   ├── auth.py          # JWT + Email verification
+│   │   ├── oauth.py         # Google OAuth
+│   │   ├── detection.py     # Detection CRUD
+│   │   └── websocket.py     # Real-time updates
+│   ├── utils/               # JWT, email, exceptions
+│   └── tests/               # pytest test suite
+│
+├── 📂 frontend/
+│   ├── public/
+│   │   └── models/traffic_signs/  # YOLOv8 TF.js model
+│   └── src/
+│       ├── components/      # Reusable UI
+│       ├── context/         # React Context (Auth)
+│       ├── hooks/
+│       │   ├── usePWAInstall.js
+│       │   ├── useKeyboardShortcuts.js
+│       │   └── useVoiceCommands.js
+│       ├── utils/
+│       │   ├── SimpleTracker.js        # SORT tracking
+│       │   ├── TrafficSignDetector.js  # YOLOv8 wrapper
+│       │   ├── DetectionMerger.js      # Cross-model NMS
+│       │   ├── SpeedEstimator.js       # Speed calculation
+│       │   ├── CountingZone.js         # Line-crossing
+│       │   ├── LicensePlateDetector.js # OCR
+│       │   └── exportPdf.js            # PDF export
+│       ├── LiveDetection.js     # Real-time dual-model
+│       ├── VideoDetection.js    # Video file processing
+│       ├── Dashboard.js         # Analytics
+│       ├── Settings.js          # User preferences
+│       └── Profile.js           # User profile
+│
+├── 📂 notebooks/
+│   └── train_traffic_signs_yolov8.ipynb  # Colab training
+│
+└── 📂 tasks/                # Project documentation
+    ├── ARCHITECTURE.md
+    ├── FEATURE_ROADMAP.md
+    └── TESTING_CHECKLIST.md
+```
 
-## Usage
+---
 
-1.  Open your web browser and navigate to `http://localhost:3000`.
-2.  Explore the visually appealing homepage and other sections.
-3.  Go to the "Detection" page.
-4.  You can either:
-    *   Click "Start Camera" to activate your webcam, then "Capture from Webcam" to process a live frame.
-    *   Click "Upload Image" to select an image file from your computer for detection.
-5.  After processing, you will be automatically redirected to the "Results" page, where the detected traffic signs and their bounding boxes will be displayed on the image.
+## 🛠️ Tech Stack
 
-## Future Improvements (Ideas)
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | React 19, React Bootstrap, Framer Motion, Recharts, TensorFlow.js, Tesseract.js |
+| **Backend** | FastAPI, Motor (async MongoDB), Pydantic, python-jose, passlib + bcrypt, slowapi |
+| **AI/ML** | COCO-SSD, Custom YOLOv8n (91.5% mAP50), Gemini 2.5 Flash, SORT tracking |
+| **Infrastructure** | MongoDB Atlas, PWA + Service Workers, Swagger/ReDoc |
 
-*   **Persistent Detection History:** Implement a backend database to store and retrieve past detection results for users.
-*   **Asynchronous Backend Processing:** Use a task queue (e.g., Celery) to handle image processing in the background, improving API responsiveness.
-*   **Advanced UI/UX:** Explore libraries for true 3D rendering of signs/emojis or more complex interactive elements.
-*   **Comprehensive Testing:** Add unit, integration, and end-to-end tests for both frontend and backend.
-*   **Containerization & CI/CD:** Dockerize the application and set up automated build and deployment pipelines.
+---
 
-## License
+## 📖 API Endpoints
 
-MIT License
+### Authentication
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | ❌ | Create account + email verification |
+| POST | `/api/auth/login` | ❌ | Login |
+| GET | `/api/auth/me` | ✅ | Get profile |
+| PUT | `/api/auth/me` | ✅ | Update username |
+| PUT | `/api/auth/me/password` | ✅ | Change password |
+| DELETE | `/api/auth/me` | ✅ | Delete account |
+| GET | `/api/auth/google` | ❌ | Google OAuth initiate |
+| POST | `/api/auth/forgot-password` | ❌ | Request password reset |
+| POST | `/api/auth/reset-password` | ❌ | Reset with token |
+| POST | `/api/auth/verify-email` | ❌ | Verify email token |
 
-Copyright (c) 2025 Himanshu Sharma
+### Detection
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/detect` | ❌ | Detect objects (Gemini 2.5 Flash) |
+| GET | `/api/detections` | ✅ | Get history (paginated) |
+| POST | `/api/detections` | ✅ | Save detection |
+| GET | `/api/detections/stats` | ✅ | Get statistics |
+| DELETE | `/api/detections/{id}` | ✅ | Delete detection |
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+**Interactive docs:** `http://localhost:8000/docs` (Swagger) | `http://localhost:8000/redoc`
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+---
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## ⌨️ Keyboard Shortcuts
 
-## Contact
+| Shortcut | Action |
+|----------|--------|
+| `Alt + H` | Home |
+| `Alt + D` | Detection |
+| `Alt + L` | Live Detection |
+| `Alt + A` | Dashboard |
+| `Alt + P` | Profile |
+| `Alt + K` | Show shortcuts |
+| `Ctrl + /` | Toggle dark mode |
 
-Himanshu Sharma
+---
+
+## 🎤 Voice Commands
+
+| Command | Action |
+|---------|--------|
+| "Start detection" | Begin detecting |
+| "Stop" | Stop detection |
+| "Screenshot" | Capture frame |
+| "Enable tracking" | Turn on SORT |
+| "Traffic signs" | Toggle YOLOv8 |
+| "Fullscreen" | Toggle fullscreen |
+| "Help" | Show commands |
+
+---
+
+## 🎓 Resume Highlights
+
+> **Full-Stack AI Application:** "Built production-ready traffic detection system with React 19, FastAPI, and MongoDB Atlas, featuring JWT + OAuth authentication, email verification, and real-time analytics"
+
+> **Custom ML Model:** "Fine-tuned YOLOv8n on Indian Traffic Sign dataset achieving 91.5% mAP50, deployed via TensorFlow.js for real-time browser inference at 16+ FPS"
+
+> **Dual-Model Architecture:** "Implemented frame interlacing to run COCO-SSD and custom YOLOv8 concurrently with cross-model NMS for deduplication"
+
+> **Advanced Features:** "Built voice command interface using Web Speech API, license plate OCR with Tesseract.js, and speed estimation with physics-based calculations"
+
+---
+
+## 🔮 Roadmap
+
+- [ ] Docker containerization
+- [ ] GitHub Actions CI/CD
+- [ ] Comprehensive test suite (Jest + Playwright)
+- [ ] Cloud deployment (AWS/GCP/Railway)
+- [ ] Traffic density heatmap
+- [ ] Multi-camera dashboard
+- [ ] Anomaly detection alerts
+
+---
+
+## 📄 License
+
+MIT License - feel free to use for learning and portfolio.
+
+---
+
+## 👨‍💻 Author
+
+**Himanshu Sharma**
+
+Built with ❤️ as a portfolio project for top tech companies.
+
+---
+
+<p align="center">
+  <strong>⭐ Star this repo if you found it helpful!</strong>
+</p>

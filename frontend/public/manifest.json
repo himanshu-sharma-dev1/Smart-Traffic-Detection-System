@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "name": "Smart Traffic Detection",
+  "short_name": "Traffic AI",
+  "description": "AI-powered traffic sign and object detection system with real-time analysis",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,74 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#2c3e50",
+  "background_color": "#ffffff",
+  "categories": [
+    "utilities",
+    "productivity",
+    "education"
+  ],
+  "screenshots": [
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Smart Traffic Detection Home"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Detect",
+      "short_name": "Detect",
+      "description": "Upload an image for detection",
+      "url": "/detect",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Live Detection",
+      "short_name": "Live",
+      "description": "Start real-time detection",
+      "url": "/live",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Stats",
+      "description": "View detection analytics",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

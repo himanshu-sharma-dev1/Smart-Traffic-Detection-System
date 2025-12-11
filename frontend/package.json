@@ -1,11 +1,17 @@
 {
   "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.23.25",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
@@ -13,6 +19,7 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
+    "recharts": "^3.5.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
