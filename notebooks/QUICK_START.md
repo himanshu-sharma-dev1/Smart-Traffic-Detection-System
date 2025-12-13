@@ -42,4 +42,3 @@ frontend/public/models/traffic_signs/
 - mAP50: ~85-92%
 - Model Size: ~3-5 MB
 - Browser Speed: ~50ms per image
-- Classes: 85 Indian traffic signs

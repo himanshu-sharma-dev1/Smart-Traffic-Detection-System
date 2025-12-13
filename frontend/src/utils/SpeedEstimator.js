@@ -3,51 +3,74 @@
  * 
  * Features:
  * - Track object positions across frames
- * - Calculate pixel displacement
+ * - Calculate pixel displacement OR real-world distance (with calibration)
  * - Convert to real-world speed with calibration
  * - Smooth speed readings with moving average
+ * - PERSPECTIVE CALIBRATION: Use homography for accurate speed from angled cameras
  */
+
+import PerspectiveCalibrator from './PerspectiveCalibrator';
+import KalmanFilter from './KalmanFilter';
 
 class SpeedEstimator {
     constructor(options = {}) {
-        // Calibration: pixels per meter (default tuned for typical webcam at desk distance)
-        // Higher value = lower speed readings (more realistic)
-        // 100 pixels ≈ 1 meter is a reasonable default for 640px wide video
+        // Calibration: pixels per meter (default tuned for typical webcam)
         this.pixelsPerMeter = options.pixelsPerMeter || 100;
 
-        // Frame rate (for time calculation)
+        // Frame rate
         this.fps = options.fps || 30;
 
-        // Speed smoothing window
-        this.smoothingWindow = options.smoothingWindow || 5;
+        // Tracking filters: { trackId: KalmanFilter }
+        this.filters = new Map();
 
-        // Object history: { trackId: { positions: [], speeds: [], lastUpdate: timestamp } }
-        this.objectHistory = new Map();
+        // Track last update time for pruning
+        this.lastUpdates = new Map();
 
-        // Maximum history length
-        this.maxHistoryLength = 30;
+        // Speed history for final output smoothing (UI display)
+        this.speedHistory = new Map();
 
-        // Minimum displacement to register (pixels) - filters camera noise
-        // Increased from 2 to 8 to prevent false speed readings from jitter
-        this.minDisplacement = options.minDisplacement || 8;
-
-        // Speed unit
-        this.speedUnit = options.speedUnit || 'km/h'; // 'km/h', 'm/s', 'mph'
-
-        // Maximum realistic speed (km/h) - filter out impossibly high readings
+        // Constants
+        this.speedUnit = options.speedUnit || 'km/h';
         this.maxSpeed = options.maxSpeed || 200;
+
+        // Perspective Calibration
+        this.perspectiveCalibrator = new PerspectiveCalibrator();
+        this.usePerspectiveCalibration = false;
     }
 
-    /**
-     * Calculate distance between two points
-     */
+    setPerspectiveCalibration(points, realWidth = 20, realHeight = 3) {
+        try {
+            this.perspectiveCalibrator.setCalibrationPoints(points, realWidth, realHeight);
+            this.usePerspectiveCalibration = true;
+            console.log('✅ Perspective calibration enabled');
+            return true;
+        } catch (error) {
+            console.error('Failed to set perspective calibration:', error);
+            this.usePerspectiveCalibration = false;
+            return false;
+        }
+    }
+
+    getPerspectiveCalibrator() {
+        return this.perspectiveCalibrator;
+    }
+
+    isPerspectiveCalibrated() {
+        return this.usePerspectiveCalibration && this.perspectiveCalibrator.isCalibrated;
+    }
+
+    clearPerspectiveCalibration() {
+        this.perspectiveCalibrator.reset();
+        this.usePerspectiveCalibration = false;
+    }
+
     distance(p1, p2) {
+        if (this.isPerspectiveCalibrated()) {
+            return this.perspectiveCalibrator.getRealWorldDistance(p1, p2);
+        }
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 
-    /**
-     * Get centroid of bounding box
-     */
     getCentroid(bbox) {
         const [x, y, width, height] = bbox;
         return {
@@ -56,211 +79,130 @@ class SpeedEstimator {
         };
     }
 
-    /**
-     * Convert pixels/second to desired unit
-     */
-    convertSpeed(pixelsPerSecond) {
-        const metersPerSecond = pixelsPerSecond / this.pixelsPerMeter;
-
-        switch (this.speedUnit) {
-            case 'm/s':
-                return metersPerSecond;
-            case 'mph':
-                return metersPerSecond * 2.23694;
-            case 'km/h':
-            default:
-                return metersPerSecond * 3.6;
-        }
-    }
-
-    /**
-     * Calculate moving average of speeds
-     */
-    getSmoothedSpeed(speeds) {
-        if (speeds.length === 0) return 0;
-
-        const window = speeds.slice(-this.smoothingWindow);
-        const sum = window.reduce((a, b) => a + b, 0);
-        return sum / window.length;
-    }
-
-    /**
-     * Update with new detections
-     * @param {Array} trackedObjects - Objects with trackId, class, bbox
-     * @param {number} currentFps - Current FPS for accurate timing
-     * @returns {Array} Objects with speed estimates
-     */
     update(trackedObjects, currentFps = null) {
         const fps = currentFps || this.fps;
+        const dt = 1 / fps; // Time step in seconds
         const now = Date.now();
         const results = [];
+        const isPerspective = this.isPerspectiveCalibrated();
 
         for (const obj of trackedObjects) {
             const trackId = obj.trackId || obj.id;
-            const centroid = this.getCentroid(obj.bbox || [obj.x, obj.y, obj.width, obj.height]);
-            const className = obj.class || obj.label || 'unknown';
+            let centroid = this.getCentroid(obj.bbox || [obj.x, obj.y, obj.width, obj.height]);
 
-            // Initialize history for new objects
-            if (!this.objectHistory.has(trackId)) {
-                this.objectHistory.set(trackId, {
-                    positions: [{ ...centroid, timestamp: now }],
-                    speeds: [],
-                    lastUpdate: now
-                });
+            // Transform raw centroid to perspective space IF calibrated
+            // We want to run Kalman Filter in the "Real World" (Meters) space if possible
+            // OR we run it in pixel space. 
+            // Better strategy: Run Kalman on PIXELS to smooth the tracking box, then convert displacement to meters.
+            // Why? Because perspective transform is non-linear, better to smooth raw inputs.
 
-                results.push({
-                    ...obj,
-                    speed: 0,
-                    speedUnit: this.speedUnit,
-                    direction: null
-                });
-                continue;
+            // Initialize Kalman Filter if new
+            if (!this.filters.has(trackId)) {
+                // Initialize with 0 velocity
+                this.filters.set(trackId, new KalmanFilter(centroid.x, centroid.y, 0, dt));
+                this.speedHistory.set(trackId, []);
             }
 
-            const history = this.objectHistory.get(trackId);
-            const lastPos = history.positions[history.positions.length - 1];
-            const timeDelta = (now - lastPos.timestamp) / 1000; // Convert to seconds
+            const filter = this.filters.get(trackId);
 
-            // Calculate displacement
-            const displacement = this.distance(lastPos, centroid);
+            // 1. Predict (Physics Step)
+            filter.predict();
 
-            // Only calculate speed if there's significant movement and time has passed
-            if (displacement >= this.minDisplacement && timeDelta > 0) {
-                // Calculate instantaneous speed in pixels/second
-                const pixelsPerSecond = displacement / timeDelta;
+            // 2. Correct (Measurement Step) with new observed centroid
+            const estimatedState = filter.correct(centroid.x, centroid.y);
 
-                // Convert to desired unit
-                let speed = this.convertSpeed(pixelsPerSecond);
+            // 3. Update Last Update Time
+            this.lastUpdates.set(trackId, now);
 
-                // Cap speed to maxSpeed to filter out noise-induced spikes
-                speed = Math.min(speed, this.maxSpeed);
+            // 4. Calculate Speed from FILTERED Velocity
+            // The filter gives us vx, vy in [pixels / dt]
+            const estimate = filter.getEstimate();
 
-                // Add to speed history (only if reasonable)
-                if (speed > 0.5) { // Ignore very tiny speeds
-                    history.speeds.push(speed);
-                }
+            // Current position from filter (smoothest)
+            const smoothedPos = { x: estimate.x, y: estimate.y };
 
-                // Limit history size
-                if (history.speeds.length > this.maxHistoryLength) {
-                    history.speeds.shift();
-                }
+            // Previous position (reverse engineer from velocity)
+            const prevPos = {
+                x: estimate.x - estimate.vx,
+                y: estimate.y - estimate.vy
+            };
 
-                // Calculate direction (angle in degrees)
-                const direction = Math.atan2(
-                    centroid.y - lastPos.y,
-                    centroid.x - lastPos.x
-                ) * (180 / Math.PI);
+            // Calculate magnitude of movement in one frame (displacement)
+            // If calibrated, this 'distance' function handles the perspective math using the SMOOTHED coords
+            let displacement = this.distance(prevPos, smoothedPos);
 
-                // Add position to history
-                history.positions.push({ ...centroid, timestamp: now });
-                if (history.positions.length > this.maxHistoryLength) {
-                    history.positions.shift();
-                }
+            // Calculate Speed: Distance / Time (dt)
+            // displacement is per frame (dt), so speed = displacement / dt => displacement * fps
+            let speedMetersPerSecond = 0;
 
-                history.lastUpdate = now;
-
-                // Get smoothed speed
-                const smoothedSpeed = this.getSmoothedSpeed(history.speeds);
-
-                results.push({
-                    ...obj,
-                    speed: Math.round(smoothedSpeed * 10) / 10, // Round to 1 decimal
-                    speedUnit: this.speedUnit,
-                    direction: Math.round(direction),
-                    instantSpeed: Math.round(speed * 10) / 10
-                });
+            if (isPerspective) {
+                // displacement is already in METERS (from perspectiveCalibrator)
+                speedMetersPerSecond = displacement / dt;
             } else {
-                // No significant movement, use last known speed with decay
-                const lastSpeed = history.speeds.length > 0
-                    ? history.speeds[history.speeds.length - 1] * 0.9 // Decay
-                    : 0;
-
-                if (lastSpeed > 0.5) {
-                    history.speeds.push(lastSpeed);
-                }
-
-                results.push({
-                    ...obj,
-                    speed: Math.round(this.getSmoothedSpeed(history.speeds) * 10) / 10,
-                    speedUnit: this.speedUnit,
-                    direction: null
-                });
+                // displacement is in PIXELS
+                speedMetersPerSecond = (displacement / this.pixelsPerMeter) / dt;
             }
+
+            // Convert to output unit (km/h)
+            let speed = speedMetersPerSecond * 3.6;
+
+            // Noise Gate: Kalman is good, but stationary wobble can still produce micro-velocity
+            // If raw displacement is tiny, force zero
+            const pixelVelocity = Math.sqrt(estimate.vx * estimate.vx + estimate.vy * estimate.vy);
+            if (pixelVelocity < 0.5) speed = 0; // Less than 0.5 pixel per frame is stationary
+            if (speed < 1.0) speed = 0; // Hard cutoff for display clarity
+
+            // Cap max speed
+            speed = Math.min(speed, this.maxSpeed);
+
+            // 5. Final Display Smoothing (UI)
+            // Even with Kalman, a 5-frame moving average makes the text easier to read
+            const history = this.speedHistory.get(trackId);
+            history.push(speed);
+            if (history.length > 10) history.shift();
+
+            const avgSpeed = history.reduce((a, b) => a + b, 0) / history.length;
+
+            results.push({
+                ...obj,
+                speed: Math.round(avgSpeed * 10) / 10,
+                speedUnit: this.speedUnit,
+                instantSpeed: Math.round(speed * 10) / 10
+            });
         }
 
-        // Clean up old object history (objects not seen in 2 seconds)
-        const activeIds = new Set(trackedObjects.map(o => o.trackId || o.id));
-        for (const [trackId, history] of this.objectHistory) {
-            if (!activeIds.has(trackId) && now - history.lastUpdate > 2000) {
-                this.objectHistory.delete(trackId);
+        // Prune old tracks
+        for (const [trackId, lastTime] of this.lastUpdates) {
+            if (now - lastTime > 2000) {
+                this.filters.delete(trackId);
+                this.lastUpdates.delete(trackId);
+                this.speedHistory.delete(trackId);
             }
         }
 
         return results;
     }
 
-    /**
-     * Set calibration value
-     * @param {number} pixelsPerMeter - Pixels per meter conversion
-     */
-    setCalibration(pixelsPerMeter) {
-        this.pixelsPerMeter = pixelsPerMeter;
-    }
-
-    /**
-     * Set speed unit
-     * @param {string} unit - 'km/h', 'm/s', or 'mph'
-     */
-    setSpeedUnit(unit) {
-        this.speedUnit = unit;
-    }
-
-    /**
-     * Get average speed of all tracked objects
-     */
-    getAverageSpeed() {
-        let totalSpeed = 0;
-        let count = 0;
-
-        for (const [, history] of this.objectHistory) {
-            if (history.speeds.length > 0) {
-                totalSpeed += this.getSmoothedSpeed(history.speeds);
-                count++;
-            }
-        }
-
-        return count > 0 ? Math.round((totalSpeed / count) * 10) / 10 : 0;
-    }
-
-    /**
-     * Get speed statistics
-     */
     getStats() {
+        // Collect current speeds
         const speeds = [];
-
-        for (const [, history] of this.objectHistory) {
-            if (history.speeds.length > 0) {
-                speeds.push(this.getSmoothedSpeed(history.speeds));
-            }
+        for (let [id, history] of this.speedHistory) {
+            if (history.length > 0) speeds.push(history[history.length - 1]);
         }
 
-        if (speeds.length === 0) {
-            return { avg: 0, max: 0, min: 0, count: 0 };
-        }
+        if (speeds.length === 0) return { avg: 0, max: 0, count: 0 };
 
         return {
             avg: Math.round((speeds.reduce((a, b) => a + b, 0) / speeds.length) * 10) / 10,
             max: Math.round(Math.max(...speeds) * 10) / 10,
-            min: Math.round(Math.min(...speeds) * 10) / 10,
-            count: speeds.length
+            count: this.filters.size
         };
     }
 
-    /**
-     * Reset all tracking
-     */
     reset() {
-        this.objectHistory.clear();
+        this.filters.clear();
+        this.lastUpdates.clear();
+        this.speedHistory.clear();
     }
 }
 

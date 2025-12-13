@@ -1,18 +1,18 @@
 /**
- * LicensePlateDetector - Server-Side OCR
+ * LicensePlateDetector - Two-Stage Pipeline Client
  * 
- * ARCHITECTURE:
- * ┌──────────────┐   POST /api/ocr    ┌──────────────┐
- * │   Frontend   │ ─────────────────▶ │   Backend    │
- * │ (Never blocks)│                   │   (EasyOCR)  │
- * │              │ ◀───────────────── │              │
- * └──────────────┘  {plate: "MH12"}   └──────────────┘
+ * ARCHITECTURE (Improved):
+ * ┌──────────────┐   POST /api/ocr    ┌──────────────────────────────────┐
+ * │   Frontend   │ ─────────────────▶ │         Backend                  │
+ * │              │                    │  1. Plate Detection (YOLOv8)     │
+ * │              │                    │  2. OCR (PaddleOCR)              │
+ * │              │ ◀───────────────── │  3. Temporal Voting              │
+ * └──────────────┘  {plate: "MH12"}   └──────────────────────────────────┘
  * 
  * Benefits:
- * - UI NEVER freezes (async network request)
- * - Better accuracy than Tesseract.js
- * - FREE (EasyOCR is open source)
- * - Works great with Indian plates
+ * - Plate-only crops = higher accuracy
+ * - PaddleOCR > EasyOCR for angled text
+ * - Temporal voting = stable readings in video
  */
 
 import axios from 'axios';
@@ -24,125 +24,114 @@ class LicensePlateDetector {
         this.isReady = false;
         this.isProcessing = false;
         this.detectedPlates = new Map(); // trackId -> { text, confidence, timestamp }
-        this.pendingTracks = new Set(); // Track IDs being processed
-        this.plateCooldown = 15000; // 15 seconds cooldown
+        this.pendingTracks = new Set();
+        this.plateCooldown = 5000; // Reduced cooldown (server handles temporal voting now)
 
         // Vehicle classes
-        this.vehicleClasses = ['car', 'truck', 'bus', 'motorcycle'];
+        this.vehicleClasses = ['car', 'truck', 'bus', 'motorcycle', 'vehicle'];
 
-        // Check if backend OCR is available
+        // Pipeline info
+        this.pipelineInfo = null;
+
+        // Check backend status
         this.checkBackendStatus();
     }
 
-    /**
-     * Check if backend OCR is available
-     */
     async checkBackendStatus() {
         try {
             const response = await axios.get(`${API_BASE}/api/ocr/status`);
-            if (response.data.status === 'ready') {
-                this.isReady = true;
-                console.log('✅ Server-side OCR ready (EasyOCR)');
+            this.pipelineInfo = response.data;
+            this.isReady = response.data.status === 'ready';
+
+            if (this.isReady) {
+                console.log('✅ OCR Pipeline ready:', response.data);
+            } else {
+                console.warn('⚠️ OCR Pipeline not ready:', response.data);
             }
         } catch (error) {
-            console.warn('⚠️ OCR backend not available. Install: pip install easyocr');
-            // Still mark as ready to allow frontend to try
-            this.isReady = true;
+            console.warn('⚠️ OCR backend not available:', error.message);
+            this.isReady = true; // Allow attempts anyway
         }
     }
 
-    /**
-     * Check if object is a vehicle
-     */
     isVehicle(detection) {
         const className = (detection.class || detection.label || '').toLowerCase();
         return this.vehicleClasses.includes(className);
     }
 
     /**
-     * Extract plate region from vehicle bounding box
-     * Plates can be anywhere from middle to bottom of vehicle
+     * Send vehicle region to backend for plate detection + OCR
+     * 
+     * IMPORTANT: We crop from the VIDEO element, not the canvas!
+     * The canvas has overlay labels drawn on it (like "CAR89") which
+     * confuse the OCR. The raw video has only the actual scene.
+     * 
+     * @param {HTMLVideoElement} video - The raw video element
+     * @param {Object} detection - Detection object with bbox
      */
-    getPlateRegion(bbox, canvasWidth, canvasHeight) {
-        const [x, y, width, height] = bbox;
-
-        // Plate is typically in middle to lower portion of vehicle
-        // For front-facing vehicles, plate is in the lower-middle area
-        const plateY = y + height * 0.3;  // Start from 30% down
-        const plateHeight = height * 0.5;  // Capture 50% of height
-        const plateX = x + width * 0.1;    // 10% margin on sides
-        const plateWidth = width * 0.8;    // 80% of width
-
-        return {
-            x: Math.max(0, Math.floor(plateX)),
-            y: Math.max(0, Math.floor(plateY)),
-            width: Math.min(Math.floor(plateWidth), canvasWidth - Math.floor(plateX)),
-            height: Math.min(Math.floor(plateHeight), canvasHeight - Math.floor(plateY))
-        };
-    }
-
-    /**
-     * Extract and send vehicle region to server for plate OCR
-     * Sends ENTIRE vehicle bounding box scaled up 3x for better OCR
-     */
-    async processPlateRegion(ctx, detection) {
+    async processVehicle(video, detection) {
         const trackId = detection.trackId || detection.id;
 
         try {
             const [x, y, width, height] = detection.bbox;
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
 
-            // Ensure we're within canvas bounds
-            const canvasWidth = ctx.canvas.width;
-            const canvasHeight = ctx.canvas.height;
-            const cropX = Math.max(0, Math.floor(x));
-            const cropY = Math.max(0, Math.floor(y));
-            const cropW = Math.min(Math.floor(width), canvasWidth - cropX);
-            const cropH = Math.min(Math.floor(height), canvasHeight - cropY);
+            // Crop bounds (with slight padding)
+            const padding = 0.05;
+            const cropX = Math.max(0, Math.floor(x - width * padding));
+            const cropY = Math.max(0, Math.floor(y - height * padding));
+            const cropW = Math.min(Math.floor(width * (1 + 2 * padding)), videoWidth - cropX);
+            const cropH = Math.min(Math.floor(height * (1 + 2 * padding)), videoHeight - cropY);
 
-            if (cropW < 30 || cropH < 30) {
+            if (cropW < 50 || cropH < 50) {
                 console.log(`⏭️ Vehicle ${trackId} too small: ${cropW}x${cropH}`);
                 return null;
             }
 
-            // Scale factor - 5x for better OCR accuracy (higher quality)
-            const SCALE = 5;
-
-            // Create scaled canvas
+            // Create high-quality crop from VIDEO (not canvas!)
+            const SCALE = 3;
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = cropW * SCALE;
             tempCanvas.height = cropH * SCALE;
             const tempCtx = tempCanvas.getContext('2d');
 
-            // Draw scaled vehicle region
             tempCtx.imageSmoothingEnabled = true;
             tempCtx.imageSmoothingQuality = 'high';
+
+            // Draw from VIDEO element (raw frame, no overlays)
             tempCtx.drawImage(
-                ctx.canvas,
-                cropX, cropY, cropW, cropH,      // Source region
-                0, 0, cropW * SCALE, cropH * SCALE  // Scaled destination
+                video,  // Source is VIDEO, not canvas!
+                cropX, cropY, cropW, cropH,
+                0, 0, cropW * SCALE, cropH * SCALE
             );
 
-            console.log(`📸 Sending ${cropW * SCALE}x${cropH * SCALE} image for OCR`);
-
             // Convert to base64
-            const base64 = tempCanvas.toDataURL('image/jpeg', 0.95);
+            const base64 = tempCanvas.toDataURL('image/jpeg', 0.92);
 
-            // Send to server
+            console.log(`📤 Sending ${cropW * SCALE}x${cropH * SCALE} to OCR pipeline...`);
+
+            // Send to backend (two-stage pipeline)
             const response = await axios.post(`${API_BASE}/api/ocr/plate-base64`, {
                 image: base64,
-                trackId: trackId
+                trackId: trackId,
+                useTemporal: true
             });
 
             if (response.data.success && response.data.plate) {
                 return {
                     text: response.data.plate,
-                    confidence: response.data.confidence
+                    confidence: response.data.confidence,
+                    consensusVotes: response.data.consensusVotes,
+                    instantPlate: response.data.instantPlate,
+                    plateBbox: response.data.plateBbox,
+                    pipeline: response.data.pipeline
                 };
             }
 
             // Log what was detected for debugging
             if (response.data.all_text && response.data.all_text.length > 0) {
-                console.log(`📝 OCR saw: ${response.data.all_text.join(', ')}`);
+                console.log(`📝 OCR candidates: ${response.data.all_text.join(', ')}`);
             }
 
             return null;
@@ -154,9 +143,13 @@ class LicensePlateDetector {
 
     /**
      * Queue vehicles for processing (NON-BLOCKING)
+     * 
+     * @param {HTMLVideoElement} video - Raw video element (no overlays)
+     * @param {Array} detections - Array of detection objects
      */
-    queueForProcessing(ctx, detections) {
+    queueForProcessing(video, detections) {
         if (!this.isReady) return;
+        if (!video || !video.videoWidth) return;
 
         const now = Date.now();
 
@@ -183,20 +176,21 @@ class LicensePlateDetector {
             this.isProcessing = true;
             this.pendingTracks.add(trackId);
 
-            console.log(`📤 Sending vehicle ${trackId} to server for OCR...`);
+            console.log(`📤 Processing vehicle ${trackId}...`);
 
-            // Send to server (async, non-blocking!)
-            this.processPlateRegion(ctx, detection)
+            // Send to server (async) - pass VIDEO not canvas
+            this.processVehicle(video, detection)
                 .then(result => {
                     if (result) {
                         this.detectedPlates.set(trackId, {
                             text: result.text,
                             confidence: result.confidence,
+                            consensusVotes: result.consensusVotes,
                             timestamp: Date.now()
                         });
-                        console.log(`✅ Plate detected: ${result.text} (${result.confidence}%)`);
+                        console.log(`✅ Plate: ${result.text} (${result.confidence}%, votes: ${result.consensusVotes?.toFixed(0)}%)`);
                     } else {
-                        console.log(`❌ No plate found for ${trackId}`);
+                        console.log(`❌ No plate for ${trackId}`);
                     }
                 })
                 .catch(err => {
@@ -207,11 +201,11 @@ class LicensePlateDetector {
                     this.pendingTracks.delete(trackId);
                 });
 
-            // Only process one at a time
+            // Process one at a time
             break;
         }
 
-        // Cleanup old plates
+        // Cleanup old plates (1 minute)
         for (const [id, data] of this.detectedPlates) {
             if (now - data.timestamp > 60000) {
                 this.detectedPlates.delete(id);
@@ -219,23 +213,14 @@ class LicensePlateDetector {
         }
     }
 
-    /**
-     * Get plate for a specific track
-     */
     getPlateForTrack(trackId) {
         return this.detectedPlates.get(trackId);
     }
 
-    /**
-     * Check if pending
-     */
     isPending(trackId) {
         return this.pendingTracks.has(trackId);
     }
 
-    /**
-     * Get all plates
-     */
     getAllPlates() {
         const plates = [];
         for (const [id, data] of this.detectedPlates) {
@@ -243,38 +228,42 @@ class LicensePlateDetector {
                 trackId: id,
                 text: data.text,
                 confidence: data.confidence,
+                consensusVotes: data.consensusVotes,
                 timestamp: data.timestamp
             });
         }
         return plates.sort((a, b) => b.timestamp - a.timestamp);
     }
 
-    /**
-     * Reset
-     */
+    async clearTemporalVotes(trackId = null) {
+        try {
+            await axios.post(`${API_BASE}/api/ocr/clear-temporal`, { trackId });
+        } catch (e) {
+            console.warn('Failed to clear temporal votes:', e);
+        }
+    }
+
     reset() {
         this.detectedPlates.clear();
         this.pendingTracks.clear();
+        this.clearTemporalVotes();
     }
 
-    /**
-     * Terminate (no-op for server-side)
-     */
     terminate() {
         this.reset();
     }
 }
 
-// Singleton - instant creation, no waiting
+// Singleton
 let instance = null;
 
 export const getLicensePlateDetector = async () => {
     if (!instance) {
         instance = new LicensePlateDetector();
-        // Mark ready immediately - backend check happens in background
         instance.isReady = true;
     }
     return instance;
 };
 
 export default LicensePlateDetector;
+

@@ -133,6 +133,7 @@ const Home = () => {
                         <Col lg={10}>
                             <motion.h1
                                 className="hero-title"
+                                style={{ color: '#ffffff' }}
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -141,6 +142,7 @@ const Home = () => {
                             </motion.h1>
                             <motion.p
                                 className="hero-subtitle"
+                                style={{ color: 'rgba(255, 255, 255, 0.9)' }}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}

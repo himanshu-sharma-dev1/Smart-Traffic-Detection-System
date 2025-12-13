@@ -258,6 +258,13 @@ body {
   right: 0;
   bottom: 0;
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+/* Ensure hero content is above decorative elements */
+.hero-section .container {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-shapes {
@@ -268,6 +275,7 @@ body {
   bottom: 0;
   pointer-events: none;
   overflow: hidden;
+  z-index: 1;
 }
 
 .shape {
@@ -2712,4 +2720,1839 @@ body.dark-mode .settings-card .card-header {
 
 body.dark-mode .settings-card .list-group-item {
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   COMPREHENSIVE DARK MODE FIXES
+   ============================================ */
+
+/* Modals */
+body.dark-mode .modal-content {
+  background-color: #1e1e2e;
+  color: #e8e8e8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal-header {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal-footer {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .modal-title {
+  color: #fff;
+}
+
+body.dark-mode .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Alerts */
+body.dark-mode .alert {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .alert-danger {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.3);
+  color: #f5c6cb;
+}
+
+body.dark-mode .alert-success {
+  background-color: rgba(40, 167, 69, 0.2);
+  border-color: rgba(40, 167, 69, 0.3);
+  color: #c3e6cb;
+}
+
+body.dark-mode .alert-warning {
+  background-color: rgba(255, 193, 7, 0.2);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: #fff3cd;
+}
+
+body.dark-mode .alert-info {
+  background-color: rgba(23, 162, 184, 0.2);
+  border-color: rgba(23, 162, 184, 0.3);
+  color: #bee5eb;
+}
+
+/* Buttons */
+body.dark-mode .btn-outline-secondary {
+  color: #adb5bd;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.dark-mode .btn-light {
+  background-color: #2d2d44;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e8e8e8;
+}
+
+body.dark-mode .btn-light:hover {
+  background-color: #3d3d54;
+}
+
+/* Form elements */
+body.dark-mode .form-select {
+  background-color: rgba(30, 30, 50, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e8e8e8;
+}
+
+body.dark-mode .form-select option {
+  background-color: #1e1e2e;
+  color: #e8e8e8;
+}
+
+body.dark-mode .form-check-input {
+  background-color: rgba(30, 30, 50, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .form-label {
+  color: #e8e8e8;
+}
+
+body.dark-mode .input-group-text {
+  background-color: rgba(30, 30, 50, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #adb5bd;
+}
+
+/* Badges */
+body.dark-mode .badge.bg-light {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #e8e8e8;
+}
+
+body.dark-mode .badge.bg-secondary {
+  background-color: rgba(108, 117, 125, 0.5) !important;
+}
+
+/* Nav & Tabs */
+body.dark-mode .nav-tabs {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .nav-tabs .nav-link {
+  color: #adb5bd;
+  border-color: transparent;
+}
+
+body.dark-mode .nav-tabs .nav-link.active {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.2) transparent;
+  color: #fff;
+}
+
+body.dark-mode .nav-pills .nav-link {
+  color: #adb5bd;
+}
+
+body.dark-mode .nav-pills .nav-link.active {
+  background-color: var(--primary-light);
+}
+
+/* Tables */
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .table thead th {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #adb5bd;
+}
+
+body.dark-mode .table td,
+body.dark-mode .table th {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Pagination */
+body.dark-mode .page-link {
+  background-color: #1e1e2e;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #adb5bd;
+}
+
+body.dark-mode .page-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.dark-mode .page-item.active .page-link {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+body.dark-mode .page-item.disabled .page-link {
+  background-color: rgba(30, 30, 50, 0.5);
+  color: #6c757d;
+}
+
+/* Breadcrumb */
+body.dark-mode .breadcrumb {
+  background-color: rgba(30, 30, 50, 0.5);
+}
+
+body.dark-mode .breadcrumb-item a {
+  color: #adb5bd;
+}
+
+body.dark-mode .breadcrumb-item.active {
+  color: #e8e8e8;
+}
+
+/* Accordion */
+body.dark-mode .accordion-item {
+  background-color: #1e1e2e;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .accordion-button {
+  background-color: #1e1e2e;
+  color: #e8e8e8;
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+  background-color: rgba(102, 126, 234, 0.2);
+  color: #fff;
+}
+
+body.dark-mode .accordion-body {
+  background-color: rgba(30, 30, 50, 0.5);
+}
+
+/* Popovers & Tooltips */
+body.dark-mode .popover {
+  background-color: #1e1e2e;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .popover-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+body.dark-mode .popover-body {
+  color: #e8e8e8;
+}
+
+/* Toast */
+body.dark-mode .toast {
+  background-color: rgba(30, 30, 50, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .toast-header {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #e8e8e8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .toast-body {
+  color: #e8e8e8;
+}
+
+/* Progress bars */
+body.dark-mode .progress {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Spinners */
+body.dark-mode .spinner-border.text-primary {
+  color: #667eea !important;
+}
+
+/* Text colors in dark mode */
+body.dark-mode .text-muted {
+  color: #8b949e !important;
+}
+
+body.dark-mode .text-dark {
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .text-secondary {
+  color: #adb5bd !important;
+}
+
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode label {
+  color: inherit;
+}
+
+/* Auth page specific */
+body.dark-mode .auth-card {
+  background-color: rgba(30, 30, 50, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .auth-card .nav-link {
+  color: #adb5bd;
+}
+
+body.dark-mode .auth-card .nav-link.active {
+  color: #fff;
+  border-color: #667eea;
+}
+
+/* Separators/Dividers */
+body.dark-mode hr {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .border {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .border-bottom {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .border-top {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Shadows in dark mode */
+body.dark-mode .shadow,
+body.dark-mode .shadow-sm,
+body.dark-mode .shadow-lg {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Ensure all white backgrounds are dark */
+body.dark-mode .bg-white {
+  background-color: #1e1e2e !important;
+}
+
+body.dark-mode .bg-body {
+  background-color: #0d1b2a !important;
+}
+
+/* Links */
+body.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item) {
+  color: #6dd5ed;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+  color: #9ee5f8;
+}
+
+/* Code blocks */
+body.dark-mode code {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f8c555;
+}
+
+body.dark-mode pre {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Blockquotes */
+body.dark-mode blockquote {
+  border-left-color: #667eea;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Selection */
+body.dark-mode ::selection {
+  background-color: rgba(102, 126, 234, 0.3);
+  color: #fff;
+}
+
+/* Scrollbar in dark mode */
+body.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Fix navbar in dark mode */
+body.dark-mode .navbar {
+  background: linear-gradient(135deg, #0d1b2a, #1b263b) !important;
+}
+
+body.dark-mode .navbar-brand {
+  color: #fff !important;
+}
+
+body.dark-mode .nav-link {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+body.dark-mode .nav-link:hover {
+  color: #fff !important;
+}
+
+/* Footer in dark mode */
+body.dark-mode footer {
+  background: linear-gradient(135deg, #0d1b2a, #1b263b) !important;
+}
+
+/* ============================================
+   SPECIFIC DARK MODE FIXES FROM SCREENSHOTS
+   ============================================ */
+
+/* Fix dropdown menu - was showing GREEN */
+body.dark-mode .dropdown-menu {
+  background-color: #1e1e2e !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .dropdown-item {
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+  background-color: rgba(102, 126, 234, 0.2) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .dropdown-header {
+  color: #8b949e !important;
+}
+
+/* Fix FAQ cards - was showing GREEN */
+body.dark-mode .faq-card,
+body.dark-mode .accordion-item,
+body.dark-mode .accordion-header,
+body.dark-mode .accordion-button {
+  background-color: #1e1e2e !important;
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .accordion-button::after {
+  filter: invert(1) brightness(2);
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+  background-color: rgba(102, 126, 234, 0.15) !important;
+  color: #fff !important;
+}
+
+/* Fix feature control panels - was showing WHITE */
+body.dark-mode .feature-control-panel,
+body.dark-mode .card,
+body.dark-mode .card-body {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .card-header {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e8e8e8 !important;
+}
+
+/* Fix toggle labels visibility */
+body.dark-mode .custom-toggle .form-check-label,
+body.dark-mode .form-check-label {
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .custom-toggle {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix comparison table - was showing WHITE */
+body.dark-mode .table,
+body.dark-mode table {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .table th,
+body.dark-mode table th {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: #adb5bd !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .table td,
+body.dark-mode table td {
+  background-color: rgba(22, 27, 34, 0.8) !important;
+  color: #e8e8e8 !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .table-responsive,
+body.dark-mode .table-wrapper {
+  background-color: transparent !important;
+}
+
+/* Fix dashboard stat cards - was showing GREEN gradient */
+body.dark-mode .dashboard-stat-card,
+body.dark-mode .stat-card,
+body.dark-mode .stats-card {
+  background: linear-gradient(135deg, rgba(30, 30, 50, 0.95), rgba(40, 40, 60, 0.95)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix select dropdown - was showing WHITE */
+body.dark-mode .form-select,
+body.dark-mode select {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  color: #e8e8e8 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode .form-select:focus,
+body.dark-mode select:focus {
+  background-color: rgba(30, 30, 50, 0.95) !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
+}
+
+/* Fix button outlines */
+body.dark-mode .btn-outline-primary {
+  color: #667eea !important;
+  border-color: #667eea !important;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background-color: #667eea !important;
+  color: #fff !important;
+}
+
+body.dark-mode .btn-outline-danger {
+  color: #f5af19 !important;
+  border-color: #f5af19 !important;
+}
+
+body.dark-mode .btn-outline-danger:hover {
+  background-color: #f5af19 !important;
+  color: #000 !important;
+}
+
+/* Fix technology badges on Features page */
+body.dark-mode .badge,
+body.dark-mode .tech-badge {
+  background-color: rgba(102, 126, 234, 0.2) !important;
+  color: #e8e8e8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Fix green hero sections */
+body.dark-mode .hero-section,
+body.dark-mode .mini-hero,
+body.dark-mode .page-header {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #16213e 100%) !important;
+}
+
+/* Fix any remaining green backgrounds */
+body.dark-mode [class*="bg-success"],
+body.dark-mode [class*="gradient"] {
+  background: linear-gradient(135deg, rgba(30, 30, 50, 0.95), rgba(40, 40, 60, 0.95)) !important;
+}
+
+/* Override Bootstrap's success/primary gradients in dark mode */
+body.dark-mode .bg-gradient {
+  background-image: none !important;
+}
+
+/* Fix input groups */
+body.dark-mode .input-group-text {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  color: #adb5bd !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Fix list groups */
+body.dark-mode .list-group-item {
+  background-color: rgba(22, 27, 34, 0.9) !important;
+  color: #e8e8e8 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .list-group-item:hover {
+  background-color: rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Fix FAQ section specifically */
+body.dark-mode .faq-section,
+body.dark-mode [class*="faq"] {
+  background-color: transparent !important;
+}
+
+body.dark-mode .faq-section .card,
+body.dark-mode .faq-section .accordion-item {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix feature grid labels */
+body.dark-mode .feature-grid .form-check-label,
+body.dark-mode .feature-control-panel .form-check-label,
+body.dark-mode .sidebar .form-check-label {
+  color: #e8e8e8 !important;
+}
+
+/* Fix chart backgrounds if any */
+body.dark-mode .recharts-wrapper,
+body.dark-mode .chart-container {
+  background-color: transparent !important;
+}
+
+/* Quick tips card fix */
+body.dark-mode .quick-tips,
+body.dark-mode [class*="tips"] .card {
+  background-color: rgba(22, 27, 34, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure all text is visible */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #fff !important;
+}
+
+body.dark-mode p,
+body.dark-mode span:not(.badge),
+body.dark-mode label,
+body.dark-mode small {
+  color: #e8e8e8;
+}
+
+body.dark-mode .text-muted,
+body.dark-mode .text-secondary {
+  color: #8b949e !important;
+}
+
+/* ============================================
+   ULTRA-SPECIFIC DARK MODE FIXES
+   These override Bootstrap's !important styles
+   ============================================ */
+
+/* DROPDOWN MENU - FORCE DARK BACKGROUND */
+.dark-mode .dropdown-menu,
+body.dark-mode .dropdown-menu,
+html body.dark-mode .dropdown-menu,
+body.dark-mode div.dropdown-menu,
+body.dark-mode .navbar .dropdown-menu {
+  background-color: #1a1a2e !important;
+  background: #1a1a2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-mode .dropdown-menu .dropdown-item,
+body.dark-mode .dropdown-item {
+  color: #e8e8e8 !important;
+  background-color: transparent !important;
+}
+
+body.dark-mode .dropdown-menu .dropdown-item:hover,
+body.dark-mode .dropdown-menu .dropdown-item:focus,
+body.dark-mode .dropdown-item:hover {
+  background-color: rgba(102, 126, 234, 0.25) !important;
+  color: #fff !important;
+}
+
+body.dark-mode .dropdown-header {
+  color: #8b949e !important;
+  background: transparent !important;
+}
+
+body.dark-mode .dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* GREEN BACKGROUND FIXES - bg-success-subtle */
+body.dark-mode .bg-success-subtle,
+body.dark-mode [class*="bg-success"],
+body.dark-mode .card.bg-success-subtle,
+body.dark-mode .Card.bg-success-subtle {
+  background-color: rgba(35, 45, 65, 0.95) !important;
+  background: rgba(35, 45, 65, 0.95) !important;
+}
+
+body.dark-mode .bg-primary-subtle,
+body.dark-mode [class*="bg-primary-subtle"] {
+  background-color: rgba(45, 55, 85, 0.95) !important;
+  background: rgba(45, 55, 85, 0.95) !important;
+}
+
+/* FAQ SECTION CARDS */
+body.dark-mode .faq-section .card,
+body.dark-mode .container .card,
+body.dark-mode [class*="faq"] .card {
+  background-color: rgba(25, 30, 45, 0.98) !important;
+  background: rgba(25, 30, 45, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* DASHBOARD STAT CARDS */
+body.dark-mode .dashboard-stat-card,
+body.dark-mode .stat-card,
+body.dark-mode [class*="stat-card"],
+body.dark-mode .card.stat-card {
+  background: linear-gradient(135deg, rgba(25, 30, 50, 0.98), rgba(35, 40, 60, 0.98)) !important;
+  background-color: rgba(25, 30, 50, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* FEATURE CONTROL PANEL - Force dark */
+body.dark-mode .feature-control-panel,
+body.dark-mode .card,
+body.dark-mode .Card {
+  background-color: rgba(22, 27, 40, 0.98) !important;
+  background: rgba(22, 27, 40, 0.98) !important;
+}
+
+body.dark-mode .card-body {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* TABLE FIXES - WHITE TABLE TO DARK */
+body.dark-mode table,
+body.dark-mode .table,
+body.dark-mode table.table,
+body.dark-mode .table-hover {
+  background-color: rgba(22, 27, 40, 0.98) !important;
+  background: rgba(22, 27, 40, 0.98) !important;
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode table th,
+body.dark-mode .table th,
+body.dark-mode table thead th {
+  background-color: rgba(15, 20, 35, 0.98) !important;
+  background: rgba(15, 20, 35, 0.98) !important;
+  color: #adb5bd !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-mode table td,
+body.dark-mode .table td,
+body.dark-mode table tbody td {
+  background-color: rgba(22, 27, 40, 0.95) !important;
+  background: rgba(22, 27, 40, 0.95) !important;
+  color: #e8e8e8 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover td {
+  background-color: rgba(102, 126, 234, 0.15) !important;
+}
+
+/* TOGGLE LABELS ON LIVE PAGE */
+body.dark-mode .form-check-label,
+body.dark-mode .custom-toggle .form-check-label,
+body.dark-mode label,
+body.dark-mode .feature-grid label {
+  color: #e8e8e8 !important;
+}
+
+/* ICONS/EMOJIS ON LIVE PAGE - Ensure visible in both modes */
+.custom-toggle .form-check-label,
+.feature-grid .form-check-label {
+  color: #e6edf3;
+}
+
+/* MINI HERO / HEADER SECTIONS */
+body.dark-mode .mini-hero,
+body.dark-mode .page-header,
+body.dark-mode [class*="hero"] {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #16213e 100%) !important;
+  background-color: #0d1b2a !important;
+}
+
+/* FORM SELECTS */
+body.dark-mode select,
+body.dark-mode .form-select,
+body.dark-mode select.form-select {
+  background-color: rgba(22, 27, 40, 0.98) !important;
+  background: rgba(22, 27, 40, 0.98) !important;
+  color: #e8e8e8 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-mode select option,
+body.dark-mode .form-select option {
+  background-color: #1a1a2e !important;
+  color: #e8e8e8 !important;
+}
+
+/* ENSURE TEXT VISIBILITY */
+body.dark-mode .text-success {
+  color: #38ef7d !important;
+}
+
+body.dark-mode .text-danger {
+  color: #ff6b6b !important;
+}
+
+body.dark-mode .text-muted {
+  color: #8b949e !important;
+}
+
+body.dark-mode strong,
+body.dark-mode b {
+  color: #fff;
+}
+
+/* USER DROPDOWN TOGGLE */
+body.dark-mode .user-dropdown,
+body.dark-mode #user-dropdown {
+  background-color: rgba(102, 126, 234, 0.15) !important;
+  border-color: #667eea !important;
+  color: #e8e8e8 !important;
+}
+
+/* LIGHT MODE - Ensure toggles are visible */
+.custom-toggle .form-check-label {
+  color: #1a1a2e;
+}
+
+body:not(.dark-mode) .custom-toggle .form-check-label {
+  color: #1a1a2e;
+}
+
+body:not(.dark-mode) .feature-control-panel {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* STATS CARD ICONS */
+body.dark-mode .stat-icon,
+body.dark-mode [class*="stat-icon"] {
+  background-color: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ============================================
+   GRADIENT TEXT FIX
+   ============================================ */
+.gradient-text {
+  background: linear-gradient(135deg, #2ecc71, #3498db) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+  display: inline !important;
+}
+
+/* Fallback for browsers that don't support background-clip */
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .gradient-text {
+    background: none !important;
+    -webkit-text-fill-color: #2ecc71 !important;
+    color: #2ecc71 !important;
+  }
+}
+
+/* ============================================
+   LIGHT MODE - FEATURE TOGGLE PANELS
+   Premium styling for light mode
+   ============================================ */
+
+/* Light mode feature panels */
+body:not(.dark-mode) .feature-control-panel,
+body:not(.dark-mode) .feature-control-panel.card {
+  background: linear-gradient(145deg, #ffffff, #f8f9fc) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+body:not(.dark-mode) .feature-control-panel h6 {
+  color: #495057 !important;
+  font-weight: 600;
+}
+
+/* Light mode custom toggles - Premium styling */
+body:not(.dark-mode) .custom-toggle {
+  background: linear-gradient(145deg, #f8f9fc, #ffffff) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+body:not(.dark-mode) .custom-toggle:hover {
+  background: linear-gradient(145deg, #ffffff, #f0f4ff) !important;
+  border-color: rgba(102, 126, 234, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* Toggle switch styling in light mode */
+body:not(.dark-mode) .custom-toggle .form-check-input {
+  background-color: #d1d5db !important;
+  border: 2px solid #9ca3af !important;
+}
+
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  background-color: #667eea !important;
+  border-color: #667eea !important;
+  background-image: linear-gradient(135deg, #667eea, #764ba2) !important;
+}
+
+/* Toggle labels in light mode */
+body:not(.dark-mode) .custom-toggle .form-check-label {
+  color: #1f2937 !important;
+  font-weight: 500;
+}
+
+/* Toggle variants in light mode */
+body:not(.dark-mode) .custom-toggle.toggle-success .form-check-input:checked {
+  background-image: linear-gradient(135deg, #11998e, #38ef7d) !important;
+  border-color: #11998e !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-danger .form-check-input:checked {
+  background-image: linear-gradient(135deg, #f12711, #f5af19) !important;
+  border-color: #f12711 !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-info .form-check-input:checked {
+  background-image: linear-gradient(135deg, #2193b0, #6dd5ed) !important;
+  border-color: #2193b0 !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-warning .form-check-input:checked {
+  background-image: linear-gradient(135deg, #f39c12, #e74c3c) !important;
+  border-color: #f39c12 !important;
+}
+
+/* Active/checked toggle glow in light mode */
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Feature grid in light mode */
+body:not(.dark-mode) .feature-grid {
+  gap: 0.75rem;
+}
+
+/* Voice control section */
+body:not(.dark-mode) .voice-control-section {
+  background: linear-gradient(145deg, #f8f9fc, #ffffff) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ============================================
+   HOMEPAGE SHAPE FIXES
+   ============================================ */
+.hero-shapes .shape {
+  opacity: 0.15;
+}
+
+body.dark-mode .hero-shapes .shape {
+  opacity: 0.1;
+}
+
+/* Stats section icons */
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 0.75rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+}
+
+body.dark-mode .stat-icon {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+}
+
+/* ============================================
+   DARK MODE - STAT NUMBER VISIBILITY FIX
+   ============================================ */
+
+/* Homepage stats in dark mode - ensure gradient is visible */
+body.dark-mode .stat-number {
+  background: linear-gradient(135deg, #6dd5ed, #2193b0) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.dark-mode .stat-label {
+  color: #adb5bd !important;
+  opacity: 1 !important;
+}
+
+body.dark-mode .stat-item {
+  color: #e8e8e8 !important;
+}
+
+/* Stats card wrapper */
+body.dark-mode .stats-card {
+  background: rgba(30, 35, 50, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   DASHBOARD STAT CARDS - DARK MODE FIX
+   ============================================ */
+
+/* Dashboard - stat values visibility */
+body.dark-mode .dashboard-stat .stat-value,
+body.dark-mode .dashboard-stat h2,
+body.dark-mode .dashboard-stat h3,
+body.dark-mode .stat-card h2,
+body.dark-mode .stat-card h3,
+body.dark-mode .stat-card .display-6,
+body.dark-mode .stat-card .display-5,
+body.dark-mode .stat-card .display-4 {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Dashboard stat card text */
+body.dark-mode .stat-card p,
+body.dark-mode .stat-card small,
+body.dark-mode .stat-card .text-muted {
+  color: #adb5bd !important;
+}
+
+/* Dashboard stat card gradient text override */
+body.dark-mode .dashboard-stat-card h2,
+body.dark-mode .dashboard-stat-card .h2,
+body.dark-mode [class*="dashboard"] .stat-value {
+  background: linear-gradient(135deg, #6dd5ed, #667eea) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ============================================
+   DASHBOARD STAT CARDS - LIGHT MODE FIX
+   ============================================ */
+
+/* Dashboard cards have colored backgrounds */
+body:not(.dark-mode) .stat-card,
+body:not(.dark-mode) .dashboard-stat-card {
+  background: linear-gradient(145deg, #ffffff, #f8f9fc) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+body:not(.dark-mode) .stat-card h2,
+body:not(.dark-mode) .stat-card h3,
+body:not(.dark-mode) .stat-card .display-6 {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* ============================================
+   LIVE PAGE TOGGLES - IMPROVED CONTRAST
+   ============================================ */
+
+/* Light mode - better toggle box styling */
+body:not(.dark-mode) .custom-toggle {
+  background: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+body:not(.dark-mode) .custom-toggle:hover {
+  border-color: #667eea !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Toggle switch - unchecked state */
+body:not(.dark-mode) .custom-toggle .form-check-input {
+  background-color: #e5e7eb !important;
+  border: 2px solid #d1d5db !important;
+  width: 48px !important;
+  height: 26px !important;
+}
+
+/* Toggle switch - checked state with glow */
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  background-color: #667eea !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25), 0 2px 8px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Toggle labels - high contrast text */
+body:not(.dark-mode) .custom-toggle .form-check-label {
+  color: #1f2937 !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Feature panel titles */
+body:not(.dark-mode) .feature-control-panel h6,
+body:not(.dark-mode) .feature-control-panel .section-title {
+  color: #374151 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+}
+
+/* Dark mode toggles - ensure visibility */
+body.dark-mode .custom-toggle {
+  background: rgba(30, 35, 50, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-mode .custom-toggle .form-check-label {
+  color: #e8e8e8 !important;
+}
+
+body.dark-mode .custom-toggle .form-check-input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+body.dark-mode .custom-toggle .form-check-input:checked {
+  background-color: #667eea !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.5) !important;
+}
+
+/* Voice control section */
+body:not(.dark-mode) .voice-control,
+body:not(.dark-mode) [class*="voice-control"] {
+  background: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+}
+
+/* ============================================
+   HOMEPAGE HERO SHAPES - REDUCE OPACITY
+   ============================================ */
+.hero-shapes .shape-1,
+.hero-shapes .shape-2,
+.hero-shapes .shape-3 {
+  opacity: 0.08 !important;
+}
+
+body.dark-mode .hero-shapes .shape-1,
+body.dark-mode .hero-shapes .shape-2,
+body.dark-mode .hero-shapes .shape-3 {
+  opacity: 0.05 !important;
+}
+
+/* ============================================
+   GRADIENT TEXT - DARK MODE VISIBILITY FIX
+   ============================================ */
+
+/* Dark mode - Use bright cyan-magenta gradient */
+body.dark-mode .gradient-text {
+  background: linear-gradient(135deg, #00f5d4, #00bbf9, #f15bb5) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Light mode - Keep original green-blue gradient */
+body:not(.dark-mode) .gradient-text {
+  background: linear-gradient(135deg, #2ecc71, #3498db) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* ============================================
+   LIVE PAGE UI - PREMIUM AESTHETIC IMPROVEMENTS
+   ============================================ */
+
+/* Feature Control Panel - Light mode - Clean professional look */
+body:not(.dark-mode) .feature-control-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+body:not(.dark-mode) .feature-control-panel h6 {
+  color: #374151 !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Custom Toggles - Light mode - Clean card style */
+body:not(.dark-mode) .custom-toggle {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+body:not(.dark-mode) .custom-toggle:hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  transform: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Toggle switch - Light mode - Simple gray/purple */
+body:not(.dark-mode) .custom-toggle .form-check-input {
+  width: 44px !important;
+  height: 24px !important;
+  background-color: #d1d5db !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+}
+
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  background-color: #6366f1 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Success variant - green */
+body:not(.dark-mode) .custom-toggle.toggle-success .form-check-input:checked {
+  background-color: #10b981 !important;
+}
+
+/* Info variant - cyan */
+body:not(.dark-mode) .custom-toggle.toggle-info .form-check-input:checked {
+  background-color: #06b6d4 !important;
+}
+
+/* Toggle labels - Light mode */
+body:not(.dark-mode) .custom-toggle .form-check-label {
+  color: #1f2937 !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Active toggle - subtle highlight */
+body:not(.dark-mode) .custom-toggle:has(.form-check-input:checked) {
+  background: #f0f9ff !important;
+  border-color: #bfdbfe !important;
+}
+
+/* Feature grid spacing */
+body:not(.dark-mode) .feature-grid {
+  gap: 0.75rem !important;
+}
+
+/* Voice control - Light mode */
+body:not(.dark-mode) .voice-control,
+body:not(.dark-mode) [class*="voice-control"] {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 16px !important;
+}
+
+/* Status badges - Light mode */
+body:not(.dark-mode) .badge.bg-success {
+  background-color: #10b981 !important;
+}
+
+body:not(.dark-mode) .badge.bg-secondary {
+  background-color: #6b7280 !important;
+}
+
+/* Camera preview area */
+body:not(.dark-mode) .camera-preview {
+  border-radius: 20px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+  border: 3px solid rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Stats cards on live page */
+body:not(.dark-mode) .stats-card,
+body:not(.dark-mode) .detection-stats {
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+  border: 1px solid rgba(99, 102, 241, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* DARK MODE - Live page enhancements */
+body.dark-mode .feature-control-panel {
+  background: linear-gradient(145deg, rgba(22, 27, 34, 0.98) 0%, rgba(30, 35, 45, 0.98) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .feature-control-panel h6 {
+  color: #a5b4fc !important;
+}
+
+body.dark-mode .custom-toggle {
+  background: linear-gradient(145deg, rgba(30, 35, 50, 0.9) 0%, rgba(40, 45, 60, 0.9) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  border-radius: 14px !important;
+}
+
+body.dark-mode .custom-toggle:hover {
+  border-color: rgba(129, 140, 248, 0.5) !important;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2) !important;
+  transform: translateY(-3px) !important;
+}
+
+body.dark-mode .custom-toggle .form-check-input {
+  background-color: #374151 !important;
+}
+
+body.dark-mode .custom-toggle .form-check-input:checked {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5) !important;
+}
+
+body.dark-mode .custom-toggle .form-check-label {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .custom-toggle:has(.form-check-input:checked) {
+  border-color: #6366f1 !important;
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+}
+
+/* Camera Off badge */
+body.dark-mode .badge.bg-secondary {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%) !important;
+}
+
+/* Model Ready badge */
+body.dark-mode .badge.bg-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* ============================================
+   HOMEPAGE STATS SECTION - GRADIENT BACKGROUND
+   ============================================ */
+
+/* Light mode - Stats card with gradient blue/teal background */
+body:not(.dark-mode) .stats-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1a4a5e 50%, #1e5a6e 100%) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 40px rgba(30, 58, 95, 0.3) !important;
+}
+
+body:not(.dark-mode) .stats-card .stat-number {
+  background: linear-gradient(135deg, #4fd1c5, #38bdf8, #a78bfa) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body:not(.dark-mode) .stats-card .stat-label {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body:not(.dark-mode) .stats-card .stat-icon {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Dark mode - Stats card styling */
+body.dark-mode .stats-card {
+  background: linear-gradient(135deg, rgba(25, 35, 55, 0.95) 0%, rgba(30, 45, 65, 0.95) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+}
+
+body.dark-mode .stats-card .stat-number {
+  background: linear-gradient(135deg, #4fd1c5, #38bdf8, #a78bfa) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ============================================
+   LIVE PAGE TOGGLES - DARK BLUE THEME
+   ============================================ */
+
+/* Light mode - Feature panels with dark blue gradient (like stats) */
+body:not(.dark-mode) .feature-control-panel {
+  background: linear-gradient(145deg, #1e3a5f 0%, #1a4a5e 50%, #1e5a6e 100%) !important;
+  border: none !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 30px rgba(30, 58, 95, 0.3) !important;
+}
+
+body:not(.dark-mode) .feature-control-panel h6 {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+}
+
+/* Custom toggles - Dark theme styling */
+body:not(.dark-mode) .custom-toggle {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: none !important;
+  transition: all 0.25s ease !important;
+}
+
+body:not(.dark-mode) .custom-toggle:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Toggle switch styling */
+body:not(.dark-mode) .custom-toggle .form-check-input {
+  width: 48px !important;
+  height: 26px !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border: none !important;
+  border-radius: 13px !important;
+}
+
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5) !important;
+}
+
+/* Toggle labels - white text */
+body:not(.dark-mode) .custom-toggle .form-check-label {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+/* Active toggle - subtle glow */
+body:not(.dark-mode) .custom-toggle:has(.form-check-input:checked) {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+/* Voice control section - dark theme */
+body:not(.dark-mode) .voice-control,
+body:not(.dark-mode) [class*="voice-control"] {
+  background: linear-gradient(145deg, #1e3a5f 0%, #1a4a5e 100%) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  color: #ffffff !important;
+}
+
+body:not(.dark-mode) .voice-control p,
+body:not(.dark-mode) [class*="voice-control"] p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ============================================
+   HOMEPAGE HERO SECTION - DARK MODE VISIBILITY
+   ============================================ */
+
+/* Hero section background */
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #1a1a2e 100%) !important;
+}
+
+/* Hero title */
+body.dark-mode .hero-title {
+  color: #ffffff !important;
+}
+
+/* Hero subtitle */
+body.dark-mode .hero-subtitle {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Hero buttons */
+body.dark-mode .hero-btn-primary {
+  background: #ffffff !important;
+  color: #1e3a5f !important;
+  border: none !important;
+}
+
+body.dark-mode .hero-btn-primary:hover {
+  background: #f0f0f0 !important;
+  transform: translateY(-2px) !important;
+}
+
+body.dark-mode .hero-btn-secondary {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+body.dark-mode .hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: #ffffff !important;
+}
+
+/* ============================================
+   HOMEPAGE SECTIONS - DARK MODE VISIBILITY
+   ============================================ */
+
+/* Content sections in dark mode */
+body.dark-mode .content-section,
+body.dark-mode .content-section-light,
+body.dark-mode .content-section-gradient {
+  background: transparent !important;
+}
+
+body.dark-mode .content-title,
+body.dark-mode .content-lead,
+body.dark-mode .content-text-secondary {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .section-badge {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+}
+
+body.dark-mode .tech-badge {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #c4b5fd !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Benefits section cards */
+body.dark-mode .benefit-card {
+  background: rgba(30, 35, 50, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .benefit-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .benefit-text {
+  color: #94a3b8 !important;
+}
+
+/* CTA section */
+body.dark-mode .cta-section {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+}
+
+body.dark-mode .cta-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .cta-subtitle {
+  color: #94a3b8 !important;
+}
+
+/* Section headers */
+body.dark-mode .section-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .section-subtitle {
+  color: #94a3b8 !important;
+}
+
+/* Carousel section */
+body.dark-mode .carousel-section {
+  background: transparent !important;
+}
+
+/* ============================================
+   HERO SECTION - STRONG DARK MODE OVERRIDE
+   ============================================ */
+
+html body.dark-mode .hero-section,
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #1a1a2e 100%) !important;
+}
+
+html body.dark-mode .hero-section::before,
+body.dark-mode .hero-section::before {
+  opacity: 0.03 !important;
+}
+
+html body.dark-mode .hero-title,
+body.dark-mode .hero-title,
+body.dark-mode .hero-section h1 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html body.dark-mode .hero-subtitle,
+body.dark-mode .hero-subtitle,
+body.dark-mode .hero-section p {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+html body.dark-mode .hero-btn-primary,
+body.dark-mode .hero-btn-primary,
+body.dark-mode .hero-section .btn-light {
+  background: #ffffff !important;
+  color: #1e3a5f !important;
+  border: none !important;
+}
+
+html body.dark-mode .hero-btn-secondary,
+body.dark-mode .hero-btn-secondary,
+body.dark-mode .hero-section .btn-outline-light {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+body.dark-mode .hero-section .btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Hero shapes visibility */
+body.dark-mode .hero-shapes .shape {
+  opacity: 0.08 !important;
+}
+
+/* ============================================
+   DETECTION ZONE BADGE & TOGGLE COLORS
+   ============================================ */
+
+/* Detection zone help badge - use dark themed style */
+.mini-badge.bg-warning,
+body:not(.dark-mode) .mini-badge.bg-warning {
+  background: linear-gradient(135deg, #1e3a5f, #2563eb) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-size: 0.75rem !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 8px !important;
+}
+
+body.dark-mode .mini-badge.bg-warning {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   TOGGLE VARIANT COLORS - DIFFERENT FOR EACH
+   ============================================ */
+
+/* Default/Primary toggle - Purple */
+body:not(.dark-mode) .custom-toggle .form-check-input:checked {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+}
+
+/* Success toggle - Teal/Cyan (Object Tracking, Sound Alerts) */
+body:not(.dark-mode) .custom-toggle.toggle-success .form-check-input:checked {
+  background: linear-gradient(135deg, #0d9488, #14b8a6) !important;
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.5) !important;
+}
+
+/* Danger toggle - Orange/Amber (Detection Zone) */
+body:not(.dark-mode) .custom-toggle.toggle-danger .form-check-input:checked {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5) !important;
+}
+
+/* Info toggle - Sky Blue (Traffic Signs) */
+body:not(.dark-mode) .custom-toggle.toggle-info .form-check-input:checked {
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4) !important;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.5) !important;
+}
+
+/* Warning toggle - Red/Rose (Speed Estimation) */
+body:not(.dark-mode) .custom-toggle.toggle-warning .form-check-input:checked {
+  background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* Purple toggle - Violet (Counting Zones, License Plates) */
+body:not(.dark-mode) .custom-toggle.toggle-purple .form-check-input:checked {
+  background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.5) !important;
+}
+
+/* Active toggle backgrounds for each variant */
+body:not(.dark-mode) .custom-toggle.toggle-success:has(.form-check-input:checked) {
+  background: rgba(20, 184, 166, 0.15) !important;
+  border-color: rgba(20, 184, 166, 0.4) !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-danger:has(.form-check-input:checked) {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-info:has(.form-check-input:checked) {
+  background: rgba(14, 165, 233, 0.15) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-warning:has(.form-check-input:checked) {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+body:not(.dark-mode) .custom-toggle.toggle-purple:has(.form-check-input:checked) {
+  background: rgba(168, 85, 247, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+/* DARK MODE - Toggle variant colors */
+body.dark-mode .custom-toggle.toggle-success .form-check-input:checked {
+  background: linear-gradient(135deg, #10b981, #34d399) !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5) !important;
+}
+
+body.dark-mode .custom-toggle.toggle-danger .form-check-input:checked {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24) !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.5) !important;
+}
+
+body.dark-mode .custom-toggle.toggle-info .form-check-input:checked {
+  background: linear-gradient(135deg, #22d3ee, #67e8f9) !important;
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.5) !important;
+}
+
+body.dark-mode .custom-toggle.toggle-warning .form-check-input:checked {
+  background: linear-gradient(135deg, #f87171, #fca5a5) !important;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.5) !important;
+}
+
+body.dark-mode .custom-toggle.toggle-purple .form-check-input:checked {
+  background: linear-gradient(135deg, #c084fc, #a78bfa) !important;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.5) !important;
+}
+
+/* ============================================
+   HERO SECTION - ULTRA STRONG DARK MODE FIX
+   ============================================ */
+
+/* Force hero content visibility in dark mode */
+body.dark-mode .hero-section .hero-title,
+body.dark-mode .hero-section h1,
+body.dark-mode .hero-section .hero-title *,
+body.dark-mode .hero-title,
+.dark-mode .hero-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.dark-mode .hero-section .hero-subtitle,
+body.dark-mode .hero-section p,
+body.dark-mode .hero-section .hero-subtitle *,
+body.dark-mode .hero-subtitle,
+.dark-mode .hero-subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.dark-mode .hero-section .hero-buttons,
+body.dark-mode .hero-buttons,
+.dark-mode .hero-buttons {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.dark-mode .hero-section .hero-btn-primary,
+body.dark-mode .hero-section .btn-light,
+body.dark-mode .hero-btn-primary,
+.dark-mode .hero-btn-primary {
+  background-color: #ffffff !important;
+  color: #1e3a5f !important;
+  border: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.dark-mode .hero-section .hero-btn-secondary,
+body.dark-mode .hero-section .btn-outline-light,
+body.dark-mode .hero-btn-secondary,
+.dark-mode .hero-btn-secondary {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure hero section container is visible */
+body.dark-mode .hero-section .container,
+body.dark-mode .hero-section .row,
+body.dark-mode .hero-section .col-lg-10,
+body.dark-mode .hero-section [class*="col-"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ============================================
+   DETECTION ZONE BADGE - FIT INSIDE TOGGLE
+   ============================================ */
+
+/* Mini badge styling - compact and inline */
+.mini-badge,
+.mini-badge.bg-warning {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 0.7rem !important;
+  padding: 0.35rem 0.6rem !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  max-width: 140px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Position the badge properly in light mode toggle panels */
+body:not(.dark-mode) .feature-grid .mini-badge,
+body:not(.dark-mode) .mini-badge.bg-warning {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  font-weight: 500 !important;
+}
+
+/* Dark mode badge */
+body.dark-mode .mini-badge,
+body.dark-mode .mini-badge.bg-warning {
+  background: rgba(139, 92, 246, 0.3) !important;
+  color: #c4b5fd !important;
+  border: 1px solid rgba(139, 92, 246, 0.5) !important;
+}
+
+/* Make feature grid wrap properly */
+.feature-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  align-items: flex-start !important;
+}
+
+/* Ensure toggle boxes don't overflow */
+.custom-toggle {
+  flex-shrink: 0 !important;
 }

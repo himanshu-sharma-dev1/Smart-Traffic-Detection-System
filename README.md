@@ -248,9 +248,11 @@ docker-compose -f docker-compose.yml up -d
 - [x] Comprehensive test suite (pytest)
 - [x] JWT + OAuth authentication
 - [x] Email verification flow
+- [x] Traffic density heatmap
+- [x] Detection timeline with event log
+- [x] Dark mode polish & UI fixes
 - [ ] GitHub Actions CI/CD
 - [ ] Cloud deployment (AWS/GCP/Railway)
-- [ ] Traffic density heatmap
 - [ ] Multi-camera dashboard
 
 ---

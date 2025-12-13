@@ -107,6 +107,11 @@
     box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
 }
 
+.custom-toggle.toggle-warning .form-check-input:checked {
+    background-image: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+}
+
 /* ============ Feature Grid ============ */
 .feature-grid {
     display: grid;

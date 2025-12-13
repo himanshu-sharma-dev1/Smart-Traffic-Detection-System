@@ -13,6 +13,10 @@ import useVoiceCommands, { VoiceCommandsHelp } from './hooks/useVoiceCommands';
 import CountingZone from './utils/CountingZone';
 import SpeedEstimator from './utils/SpeedEstimator';
 import { getLicensePlateDetector } from './utils/LicensePlateDetector';
+import SpeedCalibrationOverlay from './components/SpeedCalibrationOverlay';
+import DetectionTimeline from './components/DetectionTimeline';
+import HeatmapOverlay from './components/HeatmapOverlay';
+import HeatmapGenerator from './utils/HeatmapGenerator';
 import './LiveDetection.css';
 
 // Notification sound using Web Audio API
@@ -112,6 +116,11 @@ const LiveDetection = () => {
     const [speedStats, setSpeedStats] = useState({ avg: 0, max: 0, count: 0 });
     const speedEstimatorRef = useRef(new SpeedEstimator({ pixelsPerMeter: 10 }));
 
+    // Perspective Calibration states
+    const [isCalibrationMode, setIsCalibrationMode] = useState(false);
+    const [calibrationPoints, setCalibrationPoints] = useState(null);
+    const [isPerspectiveCalibrated, setIsPerspectiveCalibrated] = useState(false);
+
     // License Plate Detection states
     const [plateEnabled, setPlateEnabled] = useState(false);
     const [plateLoading, setPlateLoading] = useState(false);
@@ -124,6 +133,18 @@ const LiveDetection = () => {
     const [plateStart, setPlateStart] = useState(null);
     const [scanningPlate, setScanningPlate] = useState(false);
     const [lastScannedPlate, setLastScannedPlate] = useState(null);
+
+    // NEW: Detection Timeline states
+    const [timelineEnabled, setTimelineEnabled] = useState(true);
+    const [timelineEvents, setTimelineEvents] = useState([]);
+
+    // NEW: Heatmap states
+    const [heatmapEnabled, setHeatmapEnabled] = useState(false);
+    const heatmapRef = useRef(new HeatmapGenerator());
+
+    // NEW: Camera Switcher states
+    const [availableCameras, setAvailableCameras] = useState([]);
+    const [selectedCameraId, setSelectedCameraId] = useState('');
 
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -341,29 +362,104 @@ const LiveDetection = () => {
         }
     };
 
-    const startCamera = async () => {
+    // Enumerate available cameras (only after permission granted)
+    const enumerateCameras = async () => {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cameras = devices.filter(d => d.kind === 'videoinput');
+            setAvailableCameras(cameras);
+
+            // Restore last used camera from localStorage
+            const lastCamera = localStorage.getItem('lastCameraId');
+            if (lastCamera && cameras.find(c => c.deviceId === lastCamera)) {
+                setSelectedCameraId(lastCamera);
+            } else if (cameras.length > 0) {
+                setSelectedCameraId(cameras[0].deviceId);
+            }
+        } catch (e) {
+            console.log('Could not enumerate cameras:', e);
+        }
+    };
+
+    const startCamera = async (deviceId = null) => {
         try {
             setError(null);
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
-                    facingMode: 'environment'
-                }
-            });
+
+            // Build constraints - only use deviceId if we have one
+            let videoConstraints = {
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            };
+
+            // Only add deviceId constraint if we have a valid deviceId
+            if (deviceId && deviceId.length > 0) {
+                videoConstraints.deviceId = { exact: deviceId };
+            } else {
+                // Default to environment-facing camera (back camera on phones)
+                videoConstraints.facingMode = 'environment';
+            }
+
+            const constraints = { video: videoConstraints };
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 videoRef.current.onloadedmetadata = () => {
                     setCameraActive(true);
                     toast.success('📷 Camera activated!');
+                    // Now enumerate cameras (we have permission)
+                    enumerateCameras();
                 };
+            }
+
+            // Save camera preference
+            if (deviceId) {
+                localStorage.setItem('lastCameraId', deviceId);
+                setSelectedCameraId(deviceId);
             }
         } catch (err) {
             console.error('Error accessing camera:', err);
-            setError('Could not access camera. Please grant permission.');
-            toast.error('Camera access denied');
+            if (err.name === 'NotAllowedError') {
+                setError('Camera access denied. Please allow camera access in your browser settings.');
+                toast.error('🔒 Camera access denied - check browser permissions');
+            } else if (err.name === 'NotFoundError') {
+                setError('No camera found. Please connect a camera.');
+                toast.error('📷 No camera found');
+            } else if (err.name === 'OverconstrainedError') {
+                // Retry with simpler constraints (no specific deviceId)
+                console.log('OverconstrainedError - retrying with basic constraints...');
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 640 }, height: { ideal: 480 } }
+                    });
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = stream;
+                        videoRef.current.onloadedmetadata = () => {
+                            setCameraActive(true);
+                            toast.success('📷 Camera activated!');
+                            enumerateCameras();
+                        };
+                    }
+                } catch (retryErr) {
+                    setError(`Camera error: ${retryErr.message}`);
+                    toast.error('Camera error: ' + retryErr.message);
+                }
+            } else {
+                setError(`Camera error: ${err.message}`);
+                toast.error('Camera error: ' + err.message);
+            }
         }
+    };
+
+    const switchCamera = async (deviceId) => {
+        if (cameraActive) {
+            // Stop current stream
+            if (videoRef.current && videoRef.current.srcObject) {
+                videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            }
+        }
+        await startCamera(deviceId);
     };
 
     const stopCamera = () => {
@@ -583,14 +679,18 @@ const LiveDetection = () => {
                 setSpeedStats(speedEstimatorRef.current.getStats());
 
                 tracksWithSpeed.forEach((track) => {
-                    if (track.speed > 0) {
-                        const [x, y, width] = track.bbox;
-                        ctx.fillStyle = '#e74c3c';
-                        ctx.fillRect(x + width - 60, y - 25, 58, 22);
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 12px Poppins';
-                        ctx.fillText(`${track.speed} km/h`, x + width - 55, y - 8);
-                    }
+                    // Always show speed indicator (even 0 km/h)
+                    const [x, y, width, height] = track.bbox;
+                    const speedText = `${track.speed} km/h`;
+                    ctx.font = 'bold 12px Poppins';
+                    const textWidth = ctx.measureText(speedText).width + 10;
+
+                    // Draw at top right of box (aligned with top edge)
+                    const labelY = y - 25; // Same Y as class label
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(x + width - textWidth, labelY, textWidth, 22);
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(speedText, x + width - textWidth + 5, labelY + 16); // Centered vertically in 22px box
                 });
             }
 
@@ -618,7 +718,8 @@ const LiveDetection = () => {
             if (plateEnabled && plateDetector) {
                 // Queue periodically
                 if (frameCountRef.current % 30 === 0) {
-                    plateDetector.queueForProcessing(ctx, tracks);
+                    // Pass VIDEO element, not canvas (canvas has overlay labels)
+                    plateDetector.queueForProcessing(video, tracks);
                     // IMPORTANT: We update state, but use functional update to be safe
                     // and this triggers re-render, but detectFrame reference won't change
                     setDetectedPlates(prev => {
@@ -661,6 +762,40 @@ const LiveDetection = () => {
 
             setDetections(predictions);
             setTrackedObjects(speedEnabled ? tracksWithSpeed : tracks);
+
+            // NEW: Add to heatmap
+            if (heatmapEnabled && heatmapRef.current && tracks.length > 0) {
+                tracks.forEach(track => {
+                    if (track.bbox) {
+                        heatmapRef.current.addDetection(
+                            track.bbox,
+                            canvas.width,
+                            canvas.height
+                        );
+                    }
+                });
+                // Debug log every 100 frames
+                if (frameCountRef.current % 100 === 0) {
+                    console.log('🔥 Heatmap: Added', tracks.length, 'detections. Total:', heatmapRef.current.getStats().totalDetections);
+                }
+            }
+
+            // NEW: Add timeline event (every 30 frames to avoid flooding)
+            if (timelineEnabled && tracks.length > 0 && frameCountRef.current % 30 === 0) {
+                setTimelineEvents(prev => {
+                    const newEvent = {
+                        id: Date.now(),
+                        timestamp: Date.now(),
+                        detections: tracks.map(t => ({
+                            type: t.class,
+                            confidence: Math.round((t.score || 0) * 100),
+                            bbox: t.bbox
+                        }))
+                    };
+                    // Keep last 100 events
+                    return [...prev.slice(-99), newEvent];
+                });
+            }
 
             // FPS
             fpsRef.current.frameCount++;
@@ -1106,9 +1241,22 @@ const LiveDetection = () => {
                                                     />
                                                 </div>
                                                 {roiEnabled && !roi && (
-                                                    <Badge bg="warning" text="dark" className="mini-badge">
-                                                        👆 Draw rectangle on video
-                                                    </Badge>
+                                                    <span
+                                                        className="detection-hint"
+                                                        style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            fontSize: '0.7rem',
+                                                            padding: '0.3rem 0.6rem',
+                                                            borderRadius: '6px',
+                                                            background: 'rgba(245, 158, 11, 0.2)',
+                                                            color: '#fbbf24',
+                                                            border: '1px solid rgba(245, 158, 11, 0.4)',
+                                                            whiteSpace: 'nowrap'
+                                                        }}
+                                                    >
+                                                        ✏️ Draw zone
+                                                    </span>
                                                 )}
                                                 {roiEnabled && roi && (
                                                     <Button
@@ -1144,12 +1292,12 @@ const LiveDetection = () => {
                                                 <span className="title">Advanced AI Features</span>
                                             </div>
                                             <div className="feature-grid">
-                                                {/* Speed Estimation hidden - requires camera calibration
+                                                {/* Speed Estimation with Perspective Calibration */}
                                                 <div className="custom-toggle toggle-danger">
                                                     <Form.Check
                                                         type="switch"
                                                         id="speed-toggle"
-                                                        label="⚡ Speed Estimation"
+                                                        label={`⚡ Speed Estimation ${isPerspectiveCalibrated ? '(Calibrated)' : ''}`}
                                                         checked={speedEnabled}
                                                         onChange={(e) => {
                                                             setSpeedEnabled(e.target.checked);
@@ -1160,12 +1308,45 @@ const LiveDetection = () => {
                                                         }}
                                                     />
                                                 </div>
-                                                {speedEnabled && speedStats.avg > 0 && (
-                                                    <span className="speed-badge">
-                                                        🏎️ Avg: {speedStats.avg} km/h
-                                                    </span>
+                                                {speedEnabled && (
+                                                    <>
+                                                        <Button
+                                                            className={`action-btn ${isCalibrationMode ? 'action-btn-danger' : isPerspectiveCalibrated ? 'action-btn-success' : 'action-btn-outline'}`}
+                                                            size="sm"
+                                                            onClick={() => setIsCalibrationMode(!isCalibrationMode)}
+                                                            title="Calibrate for accurate speed measurement"
+                                                        >
+                                                            {isCalibrationMode ? '✕ Cancel' : isPerspectiveCalibrated ? '✓ Recalibrate' : '🎯 Calibrate'}
+                                                        </Button>
+                                                        {isPerspectiveCalibrated && (
+                                                            <Button
+                                                                className="action-btn action-btn-outline"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    speedEstimatorRef.current.clearPerspectiveCalibration();
+                                                                    setIsPerspectiveCalibrated(false);
+                                                                    setCalibrationPoints(null);
+                                                                    toast.info('Speed calibration cleared');
+                                                                }}
+                                                            >
+                                                                🗑️ Clear
+                                                            </Button>
+                                                        )}
+                                                        {speedStats.avg > 0 && (
+                                                            <span className="speed-badge" style={{
+                                                                backgroundColor: isPerspectiveCalibrated ? '#00ff64' : '#ff6600',
+                                                                color: '#000',
+                                                                padding: '4px 10px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '11px',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                🏎️ Avg: {speedStats.avg} km/h {isPerspectiveCalibrated && '✓'}
+                                                            </span>
+                                                        )}
+                                                    </>
                                                 )}
-                                                */}
+
 
                                                 <div className="custom-toggle toggle-purple">
                                                     <Form.Check
@@ -1222,8 +1403,80 @@ const LiveDetection = () => {
                                                         {detectedPlates.length} plates
                                                     </Badge>
                                                 )}
+
+                                                {/* NEW: Heatmap Toggle */}
+                                                <div className="custom-toggle toggle-warning">
+                                                    <Form.Check
+                                                        type="switch"
+                                                        id="heatmap-toggle"
+                                                        label="🔥 Heatmap"
+                                                        checked={heatmapEnabled}
+                                                        onChange={(e) => {
+                                                            setHeatmapEnabled(e.target.checked);
+                                                            if (!e.target.checked && heatmapRef.current) {
+                                                                heatmapRef.current.reset();
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                                {heatmapEnabled && (
+                                                    <Button
+                                                        className="action-btn action-btn-outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            if (heatmapRef.current) {
+                                                                const url = heatmapRef.current.exportAsImage();
+                                                                const a = document.createElement('a');
+                                                                a.href = url;
+                                                                a.download = `heatmap_${Date.now()}.png`;
+                                                                a.click();
+                                                                toast.success('Heatmap exported!');
+                                                            }
+                                                        }}
+                                                    >
+                                                        📥 Export
+                                                    </Button>
+                                                )}
+
+                                                {/* NEW: Timeline Toggle */}
+                                                <div className="custom-toggle toggle-info">
+                                                    <Form.Check
+                                                        type="switch"
+                                                        id="timeline-toggle"
+                                                        label="📋 Timeline"
+                                                        checked={timelineEnabled}
+                                                        onChange={(e) => setTimelineEnabled(e.target.checked)}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
+
+                                        {/* NEW: Camera Switcher Section */}
+                                        {availableCameras.length > 1 && (
+                                            <div className="feature-control-panel mb-3">
+                                                <div className="section-header">
+                                                    <span className="icon">📷</span>
+                                                    <span className="title">Camera</span>
+                                                </div>
+                                                <Form.Select
+                                                    size="sm"
+                                                    value={selectedCameraId}
+                                                    onChange={(e) => switchCamera(e.target.value)}
+                                                    style={{
+                                                        backgroundColor: 'rgba(30, 30, 40, 0.8)',
+                                                        color: '#fff',
+                                                        border: '1px solid rgba(255,255,255,0.2)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    {availableCameras.map((cam, idx) => (
+                                                        <option key={cam.deviceId} value={cam.deviceId}>
+                                                            {cam.label || `Camera ${idx + 1}`}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </div>
+                                        )}
 
                                         {/* Voice Control Section */}
                                         {voiceCommands.isSupported && (
@@ -1294,6 +1547,39 @@ const LiveDetection = () => {
                                                 ref={roiCanvasRef}
                                                 className="live-canvas roi-canvas"
                                             />
+
+                                            {/* Speed Calibration Overlay */}
+                                            {isCalibrationMode && cameraActive && (
+                                                <SpeedCalibrationOverlay
+                                                    canvasRef={canvasRef}
+                                                    isActive={isCalibrationMode}
+                                                    existingPoints={calibrationPoints}
+                                                    onCalibrationComplete={(points, width, height) => {
+                                                        const success = speedEstimatorRef.current.setPerspectiveCalibration(points, width, height);
+                                                        if (success) {
+                                                            setCalibrationPoints(points);
+                                                            setIsPerspectiveCalibrated(true);
+                                                            setIsCalibrationMode(false);
+                                                            toast.success(`Speed calibration set: ${width}m x ${height}m zone`);
+                                                        } else {
+                                                            toast.error('Calibration failed. Try again.');
+                                                        }
+                                                    }}
+                                                    onCancel={() => setIsCalibrationMode(false)}
+                                                />
+                                            )}
+
+                                            {/* NEW: Heatmap Overlay */}
+                                            {heatmapEnabled && detecting && (
+                                                <HeatmapOverlay
+                                                    heatmapGenerator={heatmapRef.current}
+                                                    canvasWidth={videoRef.current?.videoWidth || 640}
+                                                    canvasHeight={videoRef.current?.videoHeight || 480}
+                                                    visible={heatmapEnabled}
+                                                    opacity={0.5}
+                                                />
+                                            )}
+
                                             {!cameraActive && (
                                                 <div className="live-placeholder">
                                                     <div style={{ fontSize: '4rem' }}>🎥</div>
@@ -1361,6 +1647,20 @@ const LiveDetection = () => {
                                                         </Badge>
                                                     ))}
                                                 </div>
+                                            </div>
+                                        )}
+
+                                        {/* NEW: Detection Timeline */}
+                                        {timelineEnabled && detecting && (
+                                            <div className="mb-4">
+                                                <DetectionTimeline
+                                                    events={timelineEvents}
+                                                    maxEvents={50}
+                                                    onEventClick={(event) => {
+                                                        console.log('Timeline event clicked:', event);
+                                                        // Could highlight objects from this event
+                                                    }}
+                                                />
                                             </div>
                                         )}
 
