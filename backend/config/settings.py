@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     api_port: int = 8000
     
     # CORS
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,https://smart-traffic-det-git-9c6463-himanshu-sharmas-projects-2d8b9786.vercel.app,https://*.vercel.app"
     
     # Gemini API (optional)
     gemini_api_key: str = ""
