@@ -1,5 +1,6 @@
 # Smart Traffic Detection System - Backend Dockerfile
 # Multi-stage build for optimized production image
+# NOTE: This Dockerfile is run from REPO ROOT on Railway (not from backend/)
 
 # Stage 1: Builder
 FROM python:3.12-slim as builder
@@ -17,7 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+# Using backend/ path since Docker runs from repo root on Railway
+COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -41,8 +43,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy application code
-COPY . .
+# Copy application code from backend/ directory
+COPY backend/ .
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash appuser && \
@@ -53,12 +55,12 @@ USER appuser
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Expose port
+# Expose port (Railway uses $PORT)
 EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/')" || exit 1
 
-# Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application (PORT is injected by Railway)
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
