@@ -1,6 +1,5 @@
 # Smart Traffic Detection System - Backend Dockerfile
 # Multi-stage build for optimized production image
-# NOTE: This Dockerfile is run from REPO ROOT on Railway (not from backend/)
 
 # Stage 1: Builder
 FROM python:3.12-slim as builder
@@ -18,8 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-# Using backend/ path since Docker runs from repo root on Railway
-COPY backend/requirements.txt .
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -43,8 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy application code from backend/ directory
-COPY backend/ .
+# Copy application code
+COPY . .
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash appuser && \
