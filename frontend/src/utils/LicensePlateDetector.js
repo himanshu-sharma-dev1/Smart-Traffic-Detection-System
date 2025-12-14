@@ -1,21 +1,28 @@
 /**
- * LicensePlateDetector - Two-Stage Pipeline Client
+ * LicensePlateDetector - Three-Stage Pipeline with YOLOv8
  * 
- * ARCHITECTURE (Improved):
- * ┌──────────────┐   POST /api/ocr    ┌──────────────────────────────────┐
- * │   Frontend   │ ─────────────────▶ │         Backend                  │
- * │              │                    │  1. Plate Detection (YOLOv8)     │
- * │              │                    │  2. OCR (PaddleOCR)              │
- * │              │ ◀───────────────── │  3. Temporal Voting              │
- * └──────────────┘  {plate: "MH12"}   └──────────────────────────────────┘
+ * ARCHITECTURE (v2 - With Local Plate Detection):
+ * ┌──────────────────────────────────────────────────────────────────────┐
+ * │   Frontend                                                           │
+ * │   1. Crop vehicle from video                                         │
+ * │   2. YOLOv8 Plate Detection (98.1% mAP50) → Find exact plate region  │
+ * │   3. Send plate-only crop to backend                                 │
+ * └────────────────────────────────────────┬─────────────────────────────┘
+ *                                          │ POST /api/ocr
+ * ┌────────────────────────────────────────▼─────────────────────────────┐
+ * │   Backend                                                            │
+ * │   1. OCR (Gemini/EasyOCR) → Read plate text                          │
+ * │   2. Temporal Voting → Stabilize readings                            │
+ * └──────────────────────────────────────────────────────────────────────┘
  * 
  * Benefits:
- * - Plate-only crops = higher accuracy
- * - PaddleOCR > EasyOCR for angled text
- * - Temporal voting = stable readings in video
+ * - YOLOv8 plate detection = 98.1% accuracy finding plates
+ * - Plate-only crops = much higher OCR accuracy
+ * - No brand logos or overlay labels confusing OCR
  */
 
 import axios from 'axios';
+import { getPlateRegionDetector } from './PlateRegionDetector';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -33,8 +40,24 @@ class LicensePlateDetector {
         // Pipeline info
         this.pipelineInfo = null;
 
-        // Check backend status
-        this.checkBackendStatus();
+        // YOLOv8 Plate Detector
+        this.plateDetector = null;
+
+        // Initialize
+        this.initialize();
+    }
+
+    async initialize() {
+        // Load YOLOv8 plate detector
+        try {
+            this.plateDetector = await getPlateRegionDetector();
+            console.log('✅ YOLOv8 Plate Detector integrated');
+        } catch (error) {
+            console.warn('⚠️ YOLOv8 Plate Detector not available:', error.message);
+        }
+
+        // Check backend OCR status
+        await this.checkBackendStatus();
     }
 
     async checkBackendStatus() {
@@ -44,7 +67,7 @@ class LicensePlateDetector {
             this.isReady = response.data.status === 'ready';
 
             if (this.isReady) {
-                console.log('✅ OCR Pipeline ready:', response.data);
+                // Pipeline ready
             } else {
                 console.warn('⚠️ OCR Pipeline not ready:', response.data);
             }
@@ -62,9 +85,7 @@ class LicensePlateDetector {
     /**
      * Send vehicle region to backend for plate detection + OCR
      * 
-     * IMPORTANT: We crop from the VIDEO element, not the canvas!
-     * The canvas has overlay labels drawn on it (like "CAR89") which
-     * confuse the OCR. The raw video has only the actual scene.
+     * NEW: Uses YOLOv8 to detect exact plate region first!
      * 
      * @param {HTMLVideoElement} video - The raw video element
      * @param {Object} detection - Detection object with bbox
@@ -85,37 +106,73 @@ class LicensePlateDetector {
             const cropH = Math.min(Math.floor(height * (1 + 2 * padding)), videoHeight - cropY);
 
             if (cropW < 50 || cropH < 50) {
-                console.log(`⏭️ Vehicle ${trackId} too small: ${cropW}x${cropH}`);
                 return null;
             }
 
             // Create high-quality crop from VIDEO (not canvas!)
-            const SCALE = 3;
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = cropW * SCALE;
-            tempCanvas.height = cropH * SCALE;
-            const tempCtx = tempCanvas.getContext('2d');
+            const SCALE = 2;  // Reduced scale since we'll crop again
+            const vehicleCanvas = document.createElement('canvas');
+            vehicleCanvas.width = cropW * SCALE;
+            vehicleCanvas.height = cropH * SCALE;
+            const vehicleCtx = vehicleCanvas.getContext('2d');
 
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
+            vehicleCtx.imageSmoothingEnabled = true;
+            vehicleCtx.imageSmoothingQuality = 'high';
 
             // Draw from VIDEO element (raw frame, no overlays)
-            tempCtx.drawImage(
-                video,  // Source is VIDEO, not canvas!
+            vehicleCtx.drawImage(
+                video,
                 cropX, cropY, cropW, cropH,
                 0, 0, cropW * SCALE, cropH * SCALE
             );
 
+            // ==========================================
+            // NEW: Use YOLOv8 to detect exact plate region
+            // ==========================================
+            let imageToSend = vehicleCanvas;
+            let plateBbox = null;
+
+            if (this.plateDetector && this.plateDetector.isReady) {
+                const plateDetections = await this.plateDetector.detect(vehicleCanvas);
+
+                if (plateDetections.length > 0) {
+                    // Found a plate! Crop to just the plate region
+                    const plate = plateDetections[0];
+                    plateBbox = plate.bbox;
+
+                    const plateCanvas = document.createElement('canvas');
+                    const plateWidth = Math.max(100, plate.bbox[2]);
+                    const plateHeight = Math.max(30, plate.bbox[3]);
+
+                    // Scale up plate crop for better OCR
+                    const plateScale = 3;
+                    plateCanvas.width = plateWidth * plateScale;
+                    plateCanvas.height = plateHeight * plateScale;
+
+                    const plateCtx = plateCanvas.getContext('2d');
+                    plateCtx.imageSmoothingEnabled = true;
+                    plateCtx.imageSmoothingQuality = 'high';
+
+                    plateCtx.drawImage(
+                        vehicleCanvas,
+                        plate.bbox[0], plate.bbox[1], plate.bbox[2], plate.bbox[3],
+                        0, 0, plateWidth * plateScale, plateHeight * plateScale
+                    );
+
+                    imageToSend = plateCanvas;
+                    console.log(`🎯 Plate detected: ${Math.round(plate.confidence * 100)}% confidence`);
+                }
+            }
+
             // Convert to base64
-            const base64 = tempCanvas.toDataURL('image/jpeg', 0.92);
+            const base64 = imageToSend.toDataURL('image/jpeg', 0.95);
 
-            console.log(`📤 Sending ${cropW * SCALE}x${cropH * SCALE} to OCR pipeline...`);
-
-            // Send to backend (two-stage pipeline)
+            // Send to backend OCR
             const response = await axios.post(`${API_BASE}/api/ocr/plate-base64`, {
                 image: base64,
                 trackId: trackId,
-                useTemporal: true
+                useTemporal: true,
+                plateDetected: plateBbox !== null
             });
 
             if (response.data.success && response.data.plate) {
@@ -124,14 +181,10 @@ class LicensePlateDetector {
                     confidence: response.data.confidence,
                     consensusVotes: response.data.consensusVotes,
                     instantPlate: response.data.instantPlate,
-                    plateBbox: response.data.plateBbox,
-                    pipeline: response.data.pipeline
+                    plateBbox: plateBbox,
+                    pipeline: response.data.pipeline,
+                    yoloDetected: plateBbox !== null
                 };
-            }
-
-            // Log what was detected for debugging
-            if (response.data.all_text && response.data.all_text.length > 0) {
-                console.log(`📝 OCR candidates: ${response.data.all_text.join(', ')}`);
             }
 
             return null;
@@ -176,8 +229,6 @@ class LicensePlateDetector {
             this.isProcessing = true;
             this.pendingTracks.add(trackId);
 
-            console.log(`📤 Processing vehicle ${trackId}...`);
-
             // Send to server (async) - pass VIDEO not canvas
             this.processVehicle(video, detection)
                 .then(result => {
@@ -188,9 +239,6 @@ class LicensePlateDetector {
                             consensusVotes: result.consensusVotes,
                             timestamp: Date.now()
                         });
-                        console.log(`✅ Plate: ${result.text} (${result.confidence}%, votes: ${result.consensusVotes?.toFixed(0)}%)`);
-                    } else {
-                        console.log(`❌ No plate for ${trackId}`);
                     }
                 })
                 .catch(err => {
