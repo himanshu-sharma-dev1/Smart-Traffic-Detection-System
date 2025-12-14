@@ -316,15 +316,16 @@ def run_two_stage_ocr(img_array: np.ndarray, track_id: str = "unknown"):
 async def read_plate_from_base64(data: dict):
     """
     Read license plate from base64 encoded image.
-    Uses Gemini Vision as primary (much better for plates) with EasyOCR fallback.
-    """
-    import os
-    import google.generativeai as genai
+    Uses EasyOCR only (no external API dependencies).
     
+    Since frontend now uses YOLOv8 (98.1% mAP) for precise plate region detection,
+    we receive a tight plate crop which significantly improves OCR accuracy.
+    """
     try:
         image_data = data.get("image", "")
         track_id = data.get("trackId", "unknown")
         use_temporal = data.get("useTemporal", True)
+        plate_detected = data.get("plateDetected", False)  # From YOLOv8 frontend
         
         if not image_data:
             raise HTTPException(status_code=400, detail="No image data provided")
@@ -341,53 +342,51 @@ async def read_plate_from_base64(data: dict):
             image = image.convert('RGB')
         
         img_array = np.array(image)
-        logger.info(f"🔍 Processing image for track {track_id}, size: {img_array.shape}")
+        logger.info(f"🔍 Processing image for track {track_id}, size: {img_array.shape}, YOLOv8 detected: {plate_detected}")
         
-        # Try Gemini Vision first (much better for license plates)
-        api_key = os.getenv("GEMINI_API_KEY")
+        # Use EasyOCR directly (no Gemini API)
         plate = None
         confidence = 0
-        engine_used = "none"
+        engine_used = "EasyOCR"
         
-        if api_key:
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-2.0-flash')
+        # If frontend already cropped to plate region (YOLOv8), run OCR directly
+        if plate_detected:
+            # Image is already a tight plate crop from YOLOv8
+            logger.info("📍 Using YOLOv8 plate crop - running OCR directly")
+            reader = get_ocr_reader()
+            results = reader.readtext(img_array)
+            
+            if results:
+                # Find best plate candidate
+                best_plate = None
+                best_score = -100
+                best_conf = 0
+                all_text = []
                 
-                prompt = """Look at this image and find ANY text that looks like a vehicle license plate number.
-
-Indian plates typically look like: MH12AB4567, DL9CAB1234, KA01MH2345
-
-Return ONLY the plate number (letters and digits), nothing else.
-If you see a license plate, return it like: MH12AB4567
-If no plate visible, return: NONE"""
-                
-                response = model.generate_content([prompt, image])
-                result_text = response.text.strip().upper()
-                
-                logger.info(f"🤖 Gemini response: '{result_text}'")
-                
-                # Clean and validate
-                cleaned = ''.join(c for c in result_text if c.isalnum())
-                
-                if cleaned and cleaned != "NONE" and len(cleaned) >= 6:
-                    # Validate it looks like a plate
-                    if score_plate_candidate(cleaned) > 0:
-                        plate = cleaned
-                        confidence = 95
-                        engine_used = "Gemini Vision"
-                        logger.info(f"✅ Gemini found plate: {plate}")
+                for (bbox, text, conf) in results:
+                    cleaned = ''.join(c for c in text.upper() if c.isalnum())
+                    all_text.append(f"{cleaned} ({conf:.2f})")
                     
-            except Exception as e:
-                logger.warning(f"Gemini error: {e}")
-        
-        # Fallback to EasyOCR if Gemini didn't work
-        if not plate:
-            logger.info("📝 Gemini didn't find plate, trying EasyOCR...")
+                    if len(cleaned) >= 4:
+                        score = score_plate_candidate(cleaned) + (conf * 30)
+                        logger.info(f"  Candidate: '{cleaned}' score={score:.1f}, conf={conf:.2f}")
+                        
+                        if score > best_score:
+                            best_score = score
+                            best_plate = cleaned
+                            best_conf = conf
+                
+                logger.info(f"📝 EasyOCR detected: {all_text}")
+                
+                # Accept if score is positive (meaning it looks like a plate)
+                if best_score > 0:
+                    plate = best_plate
+                    confidence = int(best_conf * 100)
+        else:
+            # Fallback: Use two-stage OCR with heuristic plate detection
             result = run_two_stage_ocr(img_array, track_id)
             plate = result.get('plate')
             confidence = result.get('confidence', 0)
-            engine_used = "EasyOCR"
         
         # Add to temporal voting
         if plate and track_id != "manual-scan":
@@ -415,7 +414,8 @@ If no plate visible, return: NONE"""
             "instantConfidence": confidence,
             "consensusVotes": consensus_conf,
             "engine": engine_used,
-            "pipeline": "gemini-first"
+            "pipeline": "easyocr-only",
+            "yoloDetected": plate_detected
         })
         
     except Exception as e:

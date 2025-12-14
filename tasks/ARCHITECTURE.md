@@ -1,15 +1,26 @@
 # 🏗️ Smart Traffic Detection System - Architecture
 
 ## 📋 Table of Contents
+- [Live Deployment](#live-deployment)
 - [System Overview](#system-overview)
 - [Tech Stack](#tech-stack)
-- [Dual-Model Detection Architecture](#dual-model-detection-architecture)
+- [Triple-Model Detection Architecture](#triple-model-detection-architecture)
 - [Data Flow](#data-flow)
 - [Component Architecture](#component-architecture)
 - [API Architecture](#api-architecture)
-- [Custom YOLOv8 Model](#custom-yolov8-model)
+- [Custom YOLOv8 Models](#custom-yolov8-models)
 - [Detection Pipeline](#detection-pipeline)
 - [Advanced Features](#advanced-features)
+
+---
+
+## 🌐 Live Deployment
+
+| Service | URL | Status |
+|---------|-----|--------|
+| **Frontend** | https://smart-traffic-det-git-9c6463-himanshu-sharmas-projects-2d8b9786.vercel.app | ✅ Live |
+| **Backend API** | https://web-production-c6116.up.railway.app | ✅ Live |
+| **API Docs** | https://web-production-c6116.up.railway.app/docs | ✅ Live |
 
 ---
 
@@ -94,19 +105,19 @@
 | | React Bootstrap | Component library |
 | | Framer Motion | Animations |
 | | Recharts | Analytics charts |
-| | ~~Tesseract.js~~ | License plate OCR (hidden - server-side) |
 | **Backend** | FastAPI | Async Python web framework |
 | | Motor | Async MongoDB driver |
 | | Pydantic | Data validation |
 | | python-jose | JWT tokens |
-| | google-generativeai | Gemini Vision API |
+| | EasyOCR | License plate text recognition |
 | **Database** | MongoDB Atlas | Cloud NoSQL database |
-| **Infrastructure** | PWA | Installable, offline-capable |
-| | Service Workers | Caching, background sync |
+| **Infrastructure** | Vercel | Frontend hosting |
+| | Railway | Backend hosting |
+| | PWA | Installable, offline-capable |
 
 ---
 
-## 🤖 Dual-Model Detection Architecture
+## 🤖 Triple-Model Detection Architecture
 
 ```
                               ┌─────────────────────┐
@@ -114,67 +125,49 @@
                               │   (640x480 px)      │
                               └──────────┬──────────┘
                                          │
-              ┌──────────────────────────┼──────────────────────────┐
-              │                          │                          │
-              ▼                          │                          ▼
-┌─────────────────────────┐              │            ┌─────────────────────────┐
-│       COCO-SSD          │              │            │   Custom YOLOv8n        │
-│  (TensorFlow.js)        │              │            │  (TensorFlow.js)        │
-├─────────────────────────┤              │            ├─────────────────────────┤
-│ Input: 300×300          │              │            │ Input: 512×512          │
-│ Classes: 80 (COCO)      │              │            │ Classes: 85 (signs)     │
-│ Speed: ~30ms/frame      │              │            │ Speed: ~50ms/frame      │
-│ Output: [x,y,w,h,cls,c] │              │            │ Output: [x,y,w,h,cls,c] │
-└──────────┬──────────────┘              │            └──────────┬──────────────┘
-           │                             │                       │
-           │                             │                       │
-           │    ┌────────────────────────┴────────────────────┐  │
-           │    │            Frame Interlacing                 │  │
-           │    │  COCO-SSD: Every frame                       │  │
-           │    │  YOLOv8: Every 2nd frame (position interp)   │  │
-           └───►│                                              │◄─┘
-                └────────────────────────┬────────────────────┘
-                                         │
-                                         ▼
-                ┌────────────────────────────────────────────┐
-                │           Detection Merger                  │
-                │  ┌──────────────────────────────────────┐  │
-                │  │  Step 1: Normalize formats            │  │
-                │  │  COCO: {class, score, bbox}          │  │
-                │  │  YOLO: {class, score, bbox, source}  │  │
-                │  └──────────────────────────────────────┘  │
-                │  ┌──────────────────────────────────────┐  │
-                │  │  Step 2: Sort by confidence (desc)   │  │
-                │  └──────────────────────────────────────┘  │
-                │  ┌──────────────────────────────────────┐  │
-                │  │  Step 3: Cross-Model NMS (IoU=0.5)   │  │
-                │  │  - Remove duplicate "stop sign"      │  │
-                │  │  - Keep highest confidence           │  │
-                │  └──────────────────────────────────────┘  │
-                └────────────────────────┬───────────────────┘
-                                         │
-                                         ▼
-                            ┌──────────────────────┐
-                            │  Merged Detections   │
-                            │  (Deduplicated)      │
-                            └──────────────────────┘
+          ┌──────────────────────────────┼──────────────────────────────┐
+          │                              │                              │
+          ▼                              ▼                              ▼
+┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
+│     COCO-SSD        │    │  YOLOv8 Traffic     │    │  YOLOv8 License     │
+│  (TensorFlow.js)    │    │    Signs            │    │    Plates           │
+├─────────────────────┤    ├─────────────────────┤    ├─────────────────────┤
+│ Input: 300×300      │    │ Input: 512×512      │    │ Input: 640×640      │
+│ Classes: 80 (COCO)  │    │ Classes: 85 signs   │    │ Classes: 1 (plate)  │
+│ Speed: ~30ms/frame  │    │ mAP50: 91.5%        │    │ mAP50: 98.1%        │
+└──────────┬──────────┘    └──────────┬──────────┘    └──────────┬──────────┘
+           │                          │                          │
+           └──────────────────────────┼──────────────────────────┘
+                                      │
+                                      ▼
+                 ┌────────────────────────────────────────────┐
+                 │           Detection Merger (NMS)           │
+                 │  - Cross-model Non-Maximum Suppression     │
+                 │  - Duplicate removal                       │
+                 └────────────────────────┬───────────────────┘
+                                          │
+                              ┌───────────┴────────────┐
+                              │                        │
+                              ▼                        ▼
+                 ┌────────────────────┐   ┌────────────────────┐
+                 │  Vehicle/Sign Track │   │  Plate Crop →      │
+                 │  (SORT Tracker)     │   │  EasyOCR (Backend) │
+                 └────────────────────┘   └────────────────────┘
 ```
 
-### Why Dual-Model Approach?
+### Why Triple-Model Approach?
 
-| Decision | Reasoning |
-|----------|-----------|
-| **COCO-SSD for general objects** | Lightweight (~4MB), fast inference, good for vehicles/pedestrians |
-| **Custom YOLOv8 for signs** | Fine-tuned on Indian signs, 91.5% mAP50, domain-specific |
-| **Frame interlacing** | YOLOv8 runs every 2nd frame to maintain 16+ FPS |
-| **Position interpolation** | Smooth bounding boxes between frames |
-| **Cross-model NMS** | Prevents duplicate boxes when both models detect same object |
+| Model | Purpose | Metrics |
+|-------|---------|--------|
+| **COCO-SSD** | General objects (vehicles, pedestrians) | 80 classes, ~30ms |
+| **YOLOv8 Signs** | Indian traffic sign recognition | 91.5% mAP50, 85 classes |
+| **YOLOv8 Plates** | License plate detection | 98.1% mAP50, precise crops |
 
 ---
 
-## 🚦 Custom YOLOv8 Model
+## 🚦 Custom YOLOv8 Models
 
-### Model Specifications
+### Traffic Sign Recognition Model
 
 | Spec | Value |
 |------|-------|
@@ -186,6 +179,19 @@
 | mAP50-95 | 85.1% |
 | Recall | 92.7% |
 | Precision | 82.2% |
+
+### License Plate Detection Model (NEW!)
+
+| Spec | Value |
+|------|-------|
+| Base Architecture | YOLOv8n (Nano) |
+| Input Size | 640 × 640 |
+| Classes | 1 (license_plate) |
+| Dataset | 20,000+ Indian plates |
+| Model Size | ~12MB (TensorFlow.js) |
+| mAP50 | **98.1%** |
+| Precision | 97.5% |
+| Recall | 96.1% |
 
 ### Training Pipeline
 
@@ -330,28 +336,39 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 3. LicensePlateDetector
+### 3. LicensePlateDetector (Updated!)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  LicensePlateDetector - OCR Pipeline                         │
+│  LicensePlateDetector - YOLOv8 + EasyOCR Pipeline           │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌────────────────┐                                         │
 │  │   Vehicle Box  │   1. Detect vehicle (COCO-SSD)          │
-│  │   ┌──────────┐ │                                         │
-│  │   │ 🚗       │ │   2. Crop lower 25% (plate region)      │
-│  │   │          │ │                                         │
-│  │   │ [AB-1234]│ │   3. Preprocess:                        │
-│  │   └──────────┘ │      - Grayscale                        │
-│  └────────────────┘      - Contrast enhancement             │
-│                          - Binary threshold                  │
+│  │   (from COCO)  │                                         │
+│  └───────┬────────┘                                         │
 │          │                                                   │
-│          ▼               4. Scale up 2x for better OCR       │
+│          ▼                                                   │
 │  ┌────────────────┐                                         │
-│  │  EasyOCR       │      5. OCR with alphanumeric whitelist (server)│
-│  │  "MH 12 AB 1234" │                                       │
-│  └────────────────┘      6. Cache result (3s cooldown)      │
+│  │  YOLOv8 Plate  │   2. YOLOv8 Plate Detection (98.1%)    │
+│  │   Detector     │      - Precise plate bounding box       │
+│  │  (TF.js)       │      - Runs in browser                  │
+│  └───────┬────────┘                                         │
+│          │                                                   │
+│          ▼                                                   │
+│  ┌────────────────┐                                         │
+│  │  Tight Crop    │   3. Crop only the plate region         │
+│  │  (plate only)  │      - No vehicle body, no logos        │
+│  └───────┬────────┘                                         │
+│          │                                                   │
+│          ▼     POST /api/ocr/plate-base64                   │
+│  ┌────────────────┐                                         │
+│  │  EasyOCR       │   4. Backend OCR (no external API)      │
+│  │  (Backend)     │      - Read plate text                  │
+│  │  "MH12AB4567"  │      - Temporal voting                  │
+│  └────────────────┘                                         │
+│                                                              │
+│  No Gemini API! Fully self-hosted OCR pipeline.             │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -437,9 +454,42 @@ Smart Traffic Detection System/
 | Decision | Why |
 |----------|-----|
 | **TensorFlow.js for browser inference** | No server round-trip, works offline, lower latency |
-| **Dual-model with frame interlacing** | Balance accuracy (YOLOv8) with speed (COCO-SSD) |
-| **MongoDB for storage** | Flexible schema, easy cloud deployment (Atlas) |
-| **FastAPI async** | Non-blocking I/O, high performance |
-| **Gemini Vision for static detection** | Superior accuracy for uploaded images |
-| **LocalStorage for profile image** | No backend changes needed, simple implementation |
+| **Triple-model detection** | COCO-SSD (general) + YOLOv8 Signs (domain) + YOLOv8 Plates (precise) |
+| **EasyOCR instead of Gemini** | No external API dependency, fully self-hosted |
+| **MongoDB Atlas** | Flexible schema, easy cloud deployment |
+| **Vercel + Railway** | Free tier, auto-deploy from GitHub |
+| **Temporal voting for OCR** | Stable plate readings across video frames |
 | **Service Workers for PWA** | Offline capability, installable app |
+
+---
+
+## 🚀 Deployment Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         GitHub Repository                            │
+│                  himanshu-sharma-dev1/Smart-Traffic-Detection-System │
+└───────────────────────────────┬─────────────────────────────────────┘
+                                │ git push
+                ┌───────────────┴───────────────┐
+                │                               │
+                ▼                               ▼
+┌───────────────────────────────┐   ┌───────────────────────────────┐
+│         Vercel                │   │          Railway              │
+│         Frontend              │   │          Backend              │
+├───────────────────────────────┤   ├───────────────────────────────┤
+│  React 19 + TensorFlow.js     │   │  FastAPI + EasyOCR            │
+│  COCO-SSD, YOLOv8 Signs,      │   │  JWT Auth, MongoDB Motor      │
+│  YOLOv8 Plates                │ ──┤  Rate Limiting, CORS          │
+│  ~32MB total assets           │   │  OCR Temporal Voting          │
+└───────────────────────────────┘   └───────────────┬───────────────┘
+                                                    │
+                                                    ▼
+                                    ┌───────────────────────────────┐
+                                    │       MongoDB Atlas           │
+                                    │       (M0 Free Tier)          │
+                                    ├───────────────────────────────┤
+                                    │  Users, Detections, Sessions  │
+                                    └───────────────────────────────┘
+```
+

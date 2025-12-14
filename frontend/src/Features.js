@@ -6,7 +6,7 @@ const Features = () => {
         {
             icon: '🧠',
             title: 'AI-Powered Detection',
-            description: 'Utilizes Google Cloud Vision AI for highly accurate traffic sign recognition with machine learning.',
+            description: 'Custom YOLOv8 models trained on Indian traffic signs (91.5% mAP) and license plates (98.1% mAP).',
             color: '#3498db'
         },
         {
@@ -65,7 +65,7 @@ const Features = () => {
             <div className="mini-hero">
                 <Container>
                     <h1>✨ Key Features</h1>
-                    <p className="lead mb-0">Discover what makes our traffic detection system stand out</p>
+                    <p className="lead mb-0">Explore the capabilities of this AI-powered traffic detection system</p>
                 </Container>
             </div>
 
@@ -104,20 +104,20 @@ const Features = () => {
                             <span className="tech-icon">⚛️</span> React.js
                         </div>
                         <div className="tech-item">
-                            <span className="tech-icon">🔮</span> Google Vision AI
+                            <span className="tech-icon">🧠</span> YOLOv8 + TensorFlow.js
                         </div>
                         <div className="tech-item">
                             <span className="tech-icon">🎨</span> Bootstrap 5
                         </div>
                         <div className="tech-item">
-                            <span className="tech-icon">📷</span> OpenCV
+                            <span className="tech-icon">📷</span> EasyOCR
                         </div>
                     </div>
                 </div>
 
-                {/* Comparison Section */}
+                {/* Technical Highlights */}
                 <div className="mt-5 pt-5">
-                    <h2 className="text-center mb-4">📈 How We Compare</h2>
+                    <h2 className="text-center mb-4">🔬 Technical Highlights</h2>
                     <Row className="justify-content-center">
                         <Col md={10}>
                             <Card className="shadow-sm">
@@ -125,36 +125,56 @@ const Features = () => {
                                     <table className="table table-hover mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Feature</th>
-                                                <th className="text-center">Traditional Systems</th>
-                                                <th className="text-center text-success">Our Solution</th>
+                                                <th>Capability</th>
+                                                <th className="text-center">Implementation</th>
+                                                <th className="text-center text-success">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Detection Speed</td>
-                                                <td className="text-center">~500ms</td>
-                                                <td className="text-center text-success fw-bold">&lt;15ms ✓</td>
+                                                <td>Custom YOLOv8 Traffic Signs</td>
+                                                <td className="text-center">85 Indian traffic sign classes</td>
+                                                <td className="text-center text-success fw-bold">91.5% mAP50 ✓</td>
                                             </tr>
                                             <tr>
-                                                <td>Accuracy Rate</td>
-                                                <td className="text-center">85-90%</td>
-                                                <td className="text-center text-success fw-bold">99.2% ✓</td>
+                                                <td>Custom YOLOv8 License Plates</td>
+                                                <td className="text-center">Trained on 20K+ Indian plates</td>
+                                                <td className="text-center text-success fw-bold">98.1% mAP50 ✓</td>
                                             </tr>
                                             <tr>
-                                                <td>Real-time Webcam</td>
-                                                <td className="text-center">❌</td>
+                                                <td>Model Precision</td>
+                                                <td className="text-center">False positive rate minimized</td>
+                                                <td className="text-center text-success fw-bold">82.2% ✓</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Model Recall</td>
+                                                <td className="text-center">Detection coverage</td>
+                                                <td className="text-center text-success fw-bold">92.7% ✓</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Triple-Model Detection</td>
+                                                <td className="text-center">COCO-SSD + YOLOv8 Signs + Plates</td>
+                                                <td className="text-center text-success">16+ FPS ✓</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Real-time Processing</td>
+                                                <td className="text-center">TensorFlow.js in browser</td>
                                                 <td className="text-center text-success">✓</td>
                                             </tr>
                                             <tr>
-                                                <td>Cloud Scalability</td>
-                                                <td className="text-center">Limited</td>
-                                                <td className="text-center text-success">Unlimited ✓</td>
+                                                <td>Object Tracking</td>
+                                                <td className="text-center">SORT algorithm</td>
+                                                <td className="text-center text-success">✓</td>
                                             </tr>
                                             <tr>
-                                                <td>Visual Bounding Boxes</td>
-                                                <td className="text-center">Static</td>
-                                                <td className="text-center text-success">Dynamic ✓</td>
+                                                <td>License Plate OCR</td>
+                                                <td className="text-center">EasyOCR (no external API)</td>
+                                                <td className="text-center text-success">✓</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Traffic Density Heatmap</td>
+                                                <td className="text-center">Grid-based accumulator</td>
+                                                <td className="text-center text-success">✓</td>
                                             </tr>
                                         </tbody>
                                     </table>

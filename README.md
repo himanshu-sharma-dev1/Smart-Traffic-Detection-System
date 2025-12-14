@@ -1,7 +1,15 @@
 <p align="center">
   <h1 align="center">🚦 Smart Traffic Detection System</h1>
   <p align="center">
-    <strong>AI-powered real-time traffic detection with custom YOLOv8 Indian traffic sign recognition</strong>
+    <strong>AI-powered real-time traffic detection with custom YOLOv8 models for Indian traffic signs & license plates</strong>
+  </p>
+  <p align="center">
+    <a href="https://smart-traffic-det-git-9c6463-himanshu-sharmas-projects-2d8b9786.vercel.app">
+      <img src="https://img.shields.io/badge/🌐_Live_Demo-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" />
+    </a>
+    <a href="https://web-production-c6116.up.railway.app/docs">
+      <img src="https://img.shields.io/badge/📚_API_Docs-Railway-purple?style=for-the-badge&logo=railway&logoColor=white" alt="API Docs" />
+    </a>
   </p>
   <p align="center">
     <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
@@ -11,14 +19,14 @@
   </p>
   <p align="center">
     <img src="https://img.shields.io/badge/TensorFlow.js-COCO_SSD-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow.js" />
-    <img src="https://img.shields.io/badge/YOLOv8-91.5%25_mAP50-purple?style=for-the-badge" alt="YOLOv8" />
-    <img src="https://img.shields.io/badge/Gemini_2.0-Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+    <img src="https://img.shields.io/badge/YOLOv8_Signs-91.5%25_mAP50-purple?style=for-the-badge" alt="YOLOv8 Signs" />
+    <img src="https://img.shields.io/badge/YOLOv8_Plates-98.1%25_mAP50-green?style=for-the-badge" alt="YOLOv8 Plates" />
     <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
   </p>
 </p>
 
 <p align="center">
-  <i>Fine-tuned YOLOv8 achieving 91.5% mAP50 on 85 Indian traffic sign classes, deployed for real-time browser inference at 16+ FPS</i>
+  <i>Two custom YOLOv8 models: 85 Indian traffic sign classes (91.5% mAP50) + License plate detection (98.1% mAP50)</i>
 </p>
 
 ---
@@ -92,7 +100,9 @@ npm start
 
 ---
 
-## 🤖 Custom AI Model
+## 🤖 Custom AI Models
+
+### Traffic Sign Recognition Model
 
 <table align="center">
 <tr><th>Metric</th><th>Value</th></tr>
@@ -106,6 +116,20 @@ npm start
 </table>
 
 **Supported Signs:** STOP, SPEED_LIMIT (15-80), NO_ENTRY, NO_PARKING, GIVE_WAY, PEDESTRIAN_CROSSING, SCHOOL_AHEAD, ROUNDABOUT, U_TURN_PROHIBITED, and 75+ more classes.
+
+### License Plate Detection Model (NEW!)
+
+<table align="center">
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td><strong>mAP50</strong></td><td>98.1%</td></tr>
+<tr><td><strong>Precision</strong></td><td>97.5%</td></tr>
+<tr><td><strong>Recall</strong></td><td>96.1%</td></tr>
+<tr><td><strong>Dataset</strong></td><td>20,000+ Indian license plates</td></tr>
+<tr><td><strong>Model Size</strong></td><td>~12MB (TensorFlow.js)</td></tr>
+<tr><td><strong>OCR Engine</strong></td><td>EasyOCR (no external API)</td></tr>
+</table>
+
+**Features:** Real-time plate detection + OCR with temporal voting for stable readings in video streams.
 
 ---
 
@@ -127,11 +151,11 @@ npm start
 │   └──────────────────────────┬───────────────────────────────┘     │
 └──────────────────────────────┼──────────────────────────────────────┘
                                │ REST API
-┌──────────────────────────────┼──────────────────────────────────────┐
-│                        Backend (FastAPI)                            │
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        Backend (FastAPI + Railway)                      │
 │   ┌──────────────────────────┴────────────────────────────┐        │
-│   │   /api/auth/*   │   /api/detections/*   │   /detect   │        │
-│   │   JWT + OAuth   │   CRUD + Stats        │   Gemini    │        │
+│   │   /api/auth/*   │   /api/detections/*   │  /api/ocr   │        │
+│   │   JWT + OAuth   │   CRUD + Stats        │   EasyOCR   │        │
 │   └──────────────────────────┬────────────────────────────┘        │
 └──────────────────────────────┼──────────────────────────────────────┘
                                │
@@ -150,9 +174,9 @@ See [ARCHITECTURE.md](tasks/ARCHITECTURE.md) for detailed documentation.
 | Layer | Technologies |
 |-------|--------------|
 | **Frontend** | React 19, React Bootstrap, Framer Motion, Recharts, TensorFlow.js |
-| **Backend** | FastAPI, Motor (async MongoDB), Pydantic, python-jose, passlib + bcrypt |
-| **AI/ML** | COCO-SSD, Custom YOLOv8n, Google Gemini 2.0 Flash, SORT tracking |
-| **Infrastructure** | Docker, MongoDB Atlas, PWA + Service Workers, nginx |
+| **Backend** | FastAPI, Motor (async MongoDB), Pydantic, python-jose, passlib + bcrypt, EasyOCR |
+| **AI/ML** | COCO-SSD, Custom YOLOv8n (Traffic Signs + License Plates), SORT tracking, Kalman Filter |
+| **Infrastructure** | Docker, MongoDB Atlas, Vercel, Railway, PWA + Service Workers |
 
 ---
 
@@ -251,9 +275,13 @@ docker-compose -f docker-compose.yml up -d
 - [x] Traffic density heatmap
 - [x] Detection timeline with event log
 - [x] Dark mode polish & UI fixes
-- [ ] GitHub Actions CI/CD
-- [ ] Cloud deployment (AWS/GCP/Railway)
+- [x] GitHub Actions CI/CD
+- [x] Cloud deployment (Vercel + Railway)
+- [x] Custom YOLOv8 License Plate Detector (98.1% mAP50)
+- [x] EasyOCR integration (no external API needed)
+- [x] Character-level plate recognition (EasyOCR)
 - [ ] Multi-camera dashboard
+- [ ] Real-time WebSocket updates
 
 ---
 

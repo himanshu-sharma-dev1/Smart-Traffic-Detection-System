@@ -97,10 +97,10 @@ const Home = () => {
     }, []);
 
     const stats = [
-        { number: '50K+', label: 'Images Analyzed', icon: '📊' },
-        { number: '99.2%', label: 'Accuracy Rate', icon: '🎯' },
-        { number: '<15ms', label: 'Response Time', icon: '⚡' },
-        { number: '24/7', label: 'Available', icon: '🌐' }
+        { number: '98.1%', label: 'Plate Detection (mAP50)', icon: '🎯' },
+        { number: '91.5%', label: 'Traffic Signs (mAP50)', icon: '🚦' },
+        { number: '16+', label: 'FPS Real-time', icon: '⚡' },
+        { number: '3', label: 'AI Models', icon: '🧠' }
     ];
 
     const benefits = [
@@ -351,7 +351,7 @@ const Home = () => {
                                         whileHover={{ scale: 1.05, y: -3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        🔮 Google Vision AI
+                                        🧠 YOLOv8 Custom Models
                                     </motion.span>
                                     <motion.span
                                         className="tech-badge"
@@ -365,7 +365,7 @@ const Home = () => {
                                         whileHover={{ scale: 1.05, y: -3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        ⚛️ React
+                                        ⚛️ React + TensorFlow.js
                                     </motion.span>
                                 </div>
                             </motion.div>
