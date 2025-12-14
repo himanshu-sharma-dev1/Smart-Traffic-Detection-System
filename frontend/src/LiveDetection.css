@@ -418,9 +418,20 @@
 }
 
 /* ============ Responsive Adjustments ============ */
+@media (max-width: 991px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .video-container {
+        margin-bottom: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
     .feature-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
     }
 
     .custom-toggle {
@@ -436,15 +447,168 @@
         font-size: 0.75rem;
         padding: 0.4rem 0.8rem;
     }
+    
+    .feature-control-panel {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    .feature-control-panel h6 {
+        font-size: 0.7rem;
+    }
+    
+    .stats-card .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .action-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .detection-list {
+        max-height: 200px;
+    }
+    
+    .plate-text {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 576px) {
     .feature-grid {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
     }
 
     .feature-control-panel {
-        padding: 1rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-control-panel h6 {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .custom-toggle {
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+    }
+    
+    .custom-toggle .form-check-input {
+        width: 40px;
+        height: 22px;
+        margin-right: 10px;
+    }
+    
+    .custom-toggle .form-check-label {
+        font-size: 0.8rem;
+    }
+    
+    .video-container {
+        border-radius: 10px;
+        margin: 0 -0.5rem;
+        width: calc(100% + 1rem);
+    }
+    
+    .video-overlay {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    .stats-card {
+        padding: 0.75rem;
+    }
+    
+    .stats-card .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .stats-card .stat-label {
+        font-size: 0.65rem;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        min-height: 48px;
+    }
+    
+    .voice-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .detection-list {
+        max-height: 150px;
+    }
+    
+    .detection-item {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .plate-panel {
+        padding: 0.75rem;
+    }
+    
+    .plate-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .plate-text {
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+    
+    .model-loading {
+        padding: 2rem 1rem;
+    }
+    
+    .model-loading .loader {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .section-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .mini-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Portrait mobile specific */
+@media (max-width: 480px) {
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Ensure video is full width */
+    .video-container {
+        aspect-ratio: 4/3;
+    }
+    
+    /* Stack buttons vertically */
+    .btn-group,
+    .d-flex.gap-2 {
+        flex-direction: column !important;
+    }
+    
+    .btn-group .btn {
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
     }
 }
 
@@ -507,4 +671,25 @@
     border-radius: 4px;
     margin-left: 0.5rem;
     font-weight: 600;
+}
+
+/* ============ Touch Device Optimizations ============ */
+@media (hover: none) and (pointer: coarse) {
+    .custom-toggle {
+        min-height: 48px;
+    }
+    
+    .action-btn {
+        min-height: 48px;
+    }
+    
+    .custom-toggle:hover {
+        transform: none;
+    }
+    
+    .action-btn-primary:hover,
+    .action-btn-success:hover,
+    .action-btn-danger:hover {
+        transform: none;
+    }
 }

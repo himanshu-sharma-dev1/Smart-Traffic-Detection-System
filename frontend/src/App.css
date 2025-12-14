@@ -4556,3 +4556,294 @@ body.dark-mode .mini-badge.bg-warning {
 .custom-toggle {
   flex-shrink: 0 !important;
 }
+
+/* ============================================
+   ENHANCED MOBILE RESPONSIVENESS
+   ============================================ */
+
+/* Mobile navbar improvements */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 0.5rem;
+  }
+
+  .navbar-toggler {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.4rem 0.6rem;
+  }
+
+  .navbar-toggler-icon {
+    filter: brightness(2);
+  }
+}
+
+/* Mobile footer */
+@media (max-width: 768px) {
+  footer {
+    text-align: center;
+  }
+
+  footer .row>div {
+    margin-bottom: 1.5rem;
+  }
+
+  footer .social-links {
+    justify-content: center;
+  }
+}
+
+/* Dashboard mobile layout */
+@media (max-width: 768px) {
+  .dashboard-stat-card {
+    margin-bottom: 1rem;
+  }
+
+  .chart-container {
+    min-height: 250px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Make charts scrollable horizontally on mobile */
+  .recharts-responsive-container {
+    min-width: 300px;
+  }
+}
+
+/* Forms mobile optimization */
+@media (max-width: 576px) {
+
+  .form-control,
+  .form-select {
+    font-size: 16px !important;
+    /* Prevents iOS zoom */
+    padding: 0.75rem 1rem;
+    min-height: 48px;
+  }
+
+  .btn {
+    min-height: 48px;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-sm {
+    min-height: 40px;
+  }
+}
+
+/* Profile page mobile */
+@media (max-width: 576px) {
+  .profile-avatar {
+    width: 100px !important;
+    height: 100px !important;
+    font-size: 2.5rem !important;
+  }
+
+  .profile-card {
+    padding: 1rem !important;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Detection page mobile */
+@media (max-width: 576px) {
+  .upload-area {
+    padding: 1.5rem 1rem;
+  }
+
+  .drag-drop-icon {
+    font-size: 2.5rem;
+  }
+
+  .camera-preview {
+    height: 280px;
+    border-radius: 12px;
+  }
+}
+
+/* Results page mobile */
+@media (max-width: 576px) {
+  .detection-results {
+    padding: 1rem;
+  }
+
+  .result-image {
+    max-height: 300px;
+  }
+}
+
+/* History page mobile */
+@media (max-width: 576px) {
+  .history-card {
+    margin-bottom: 1rem;
+  }
+
+  .history-card-image {
+    height: 150px;
+  }
+
+  .history-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .history-stats span {
+    margin: 0.25rem;
+  }
+}
+
+/* Settings page mobile */
+@media (max-width: 576px) {
+  .settings-card {
+    margin-bottom: 1rem;
+  }
+
+  .settings-card .card-body {
+    padding: 1rem;
+  }
+
+  .form-switch {
+    padding-left: 2.5rem;
+  }
+
+  .form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+  }
+}
+
+/* Auth pages mobile */
+@media (max-width: 576px) {
+  .auth-card {
+    margin: 0.5rem;
+    border-radius: 16px;
+  }
+
+  .auth-card .card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-nav-link {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem;
+  }
+}
+
+/* Table mobile - horizontal scroll */
+@media (max-width: 768px) {
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    white-space: nowrap;
+  }
+}
+
+/* Modal mobile optimization */
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .modal-content {
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .modal-footer .btn {
+    flex: 1;
+    margin: 0.25rem;
+  }
+}
+
+/* Cards mobile */
+@media (max-width: 576px) {
+  .card {
+    border-radius: 12px;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-header,
+  .card-footer {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Badges mobile */
+@media (max-width: 576px) {
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.6rem;
+  }
+}
+
+/* Accordion mobile */
+@media (max-width: 576px) {
+  .accordion-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .accordion-body {
+    padding: 1rem;
+  }
+}
+
+/* Fix iOS input zoom */
+@supports (-webkit-touch-callout: none) {
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  .navbar {
+    padding-left: max(env(safe-area-inset-left), 1rem);
+    padding-right: max(env(safe-area-inset-right), 1rem);
+  }
+
+  footer {
+    padding-bottom: max(env(safe-area-inset-bottom), 2rem);
+  }
+
+  .fab {
+    bottom: max(env(safe-area-inset-bottom), 30px);
+    right: max(env(safe-area-inset-right), 30px);
+  }
+}
