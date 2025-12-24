@@ -1,7 +1,9 @@
 """
 Email Service - Send verification and password reset emails
-Uses aiosmtplib for async email sending with Gmail SMTP
+Uses SendGrid API for production (bypasses blocked SMTP ports)
+Falls back to aiosmtplib for local development
 """
+import os
 import logging
 import aiosmtplib
 from email.mime.text import MIMEText
@@ -11,12 +13,64 @@ from config.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# SendGrid API Key (set in production to bypass blocked SMTP)
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+
 
 async def send_email(to_email: str, subject: str, html_content: str) -> bool:
     """
-    Send an email using SMTP
+    Send an email using SendGrid API (production) or SMTP (local dev)
     Returns True if successful, False otherwise
     """
+    # Use SendGrid if API key is available (production)
+    if SENDGRID_API_KEY:
+        return await _send_via_sendgrid(to_email, subject, html_content)
+    
+    # Fallback to SMTP (local development)
+    return await _send_via_smtp(to_email, subject, html_content)
+
+
+async def _send_via_sendgrid(to_email: str, subject: str, html_content: str) -> bool:
+    """Send email using SendGrid API (async compatible)"""
+    try:
+        import httpx
+        
+        headers = {
+            "Authorization": f"Bearer {SENDGRID_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        from_email = settings.smtp_user if settings.smtp_user else "noreply@smart-traffic.com"
+        
+        payload = {
+            "personalizations": [{"to": [{"email": to_email}]}],
+            "from": {"email": from_email, "name": "Smart Traffic Detection"},
+            "subject": subject,
+            "content": [{"type": "text/html", "value": html_content}]
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.sendgrid.com/v3/mail/send",
+                json=payload,
+                headers=headers,
+                timeout=30.0
+            )
+        
+        if response.status_code in [200, 201, 202]:
+            logger.info(f"✉️ Email sent successfully to {to_email} via SendGrid")
+            return True
+        else:
+            logger.error(f"❌ SendGrid error {response.status_code}: {response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ SendGrid error: {e}")
+        return False
+
+
+async def _send_via_smtp(to_email: str, subject: str, html_content: str) -> bool:
+    """Send email using SMTP (for local development)"""
     try:
         # Create message
         message = MIMEMultipart("alternative")
@@ -38,7 +92,7 @@ async def send_email(to_email: str, subject: str, html_content: str) -> bool:
             start_tls=True
         )
         
-        logger.info(f"✉️ Email sent successfully to {to_email}")
+        logger.info(f"✉️ Email sent successfully to {to_email} via SMTP")
         return True
         
     except Exception as e:
