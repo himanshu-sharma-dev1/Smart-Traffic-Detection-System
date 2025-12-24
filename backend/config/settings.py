@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     
+    # SendGrid API (for production - bypasses blocked SMTP)
+    sendgrid_api_key: str = ""
+    
     # Frontend URL
     frontend_url: str = "http://localhost:3000"
     
